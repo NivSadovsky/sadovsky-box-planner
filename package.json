@@ -1,0 +1,11 @@
+{
+  "name": "sadovsky-box-planner",
+  "version": "1.0.0",
+  "description": "סדובסקי מתכנן קרטונים",
+  "scripts": {
+    "start": "serve . -p ${PORT:-3000} -s"
+  },
+  "dependencies": {
+    "serve": "^14.2.3"
+  }
+}

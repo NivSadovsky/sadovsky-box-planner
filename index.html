@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>סדובסקי מתכנן קרטונים</title>
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue-dark:   #1a3a5c;
+      --blue-mid:    #2563eb;
+      --blue-light:  #dbeafe;
+      --blue-pale:   #eff6ff;
+      --gold:        #f59e0b;
+      --gold-light:  #fef3c7;
+      --green:       #059669;
+      --green-light: #d1fae5;
+      --gray-50:     #f8fafc;
+      --gray-100:    #f1f5f9;
+      --gray-200:    #e2e8f0;
+      --gray-400:    #94a3b8;
+      --gray-600:    #475569;
+      --gray-800:    #1e293b;
+      --radius:      12px;
+      --shadow-sm:   0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+      --shadow-md:   0 4px 12px rgba(0,0,0,.10), 0 2px 4px rgba(0,0,0,.06);
+      --shadow-lg:   0 10px 30px rgba(0,0,0,.12), 0 4px 8px rgba(0,0,0,.06);
+    }
+
+    body {
+      font-family: 'Heebo', sans-serif;
+      background: linear-gradient(135deg, #e0eaff 0%, #f0f4ff 50%, #e8f4fd 100%);
+      min-height: 100vh;
+      color: var(--gray-800);
+      padding: 0 0 60px;
+    }
+
+    /* ── Header ── */
+    header {
+      background: linear-gradient(135deg, var(--blue-dark) 0%, #1e4d8c 100%);
+      color: #fff;
+      padding: 28px 24px 24px;
+      text-align: center;
+      box-shadow: 0 4px 16px rgba(26,58,92,.4);
+    }
+    header h1 {
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      font-weight: 800;
+      letter-spacing: -.5px;
+    }
+    header p {
+      margin-top: 6px;
+      font-size: .95rem;
+      opacity: .8;
+      font-weight: 300;
+    }
+
+    /* ── Form card ── */
+    .form-card {
+      background: #fff;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+      padding: 28px 28px 24px;
+      max-width: 760px;
+      margin: 28px auto 0;
+      width: calc(100% - 32px);
+    }
+    .form-card h2 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--blue-dark);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .form-card h2::before {
+      content: '';
+      display: inline-block;
+      width: 4px; height: 20px;
+      background: var(--blue-mid);
+      border-radius: 2px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 16px 20px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .field label {
+      font-size: .82rem;
+      font-weight: 600;
+      color: var(--gray-600);
+      text-transform: uppercase;
+      letter-spacing: .4px;
+    }
+    .field .unit {
+      font-size: .72rem;
+      font-weight: 400;
+      color: var(--gray-400);
+      text-transform: none;
+    }
+    .field input {
+      border: 1.5px solid var(--gray-200);
+      border-radius: 8px;
+      padding: 9px 12px;
+      font-family: 'Heebo', sans-serif;
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--gray-800);
+      background: var(--gray-50);
+      transition: border-color .2s, box-shadow .2s;
+      direction: ltr;
+      text-align: right;
+    }
+    .field input:focus {
+      outline: none;
+      border-color: var(--blue-mid);
+      box-shadow: 0 0 0 3px rgba(37,99,235,.15);
+      background: #fff;
+    }
+    .field input.error {
+      border-color: #ef4444;
+      box-shadow: 0 0 0 3px rgba(239,68,68,.12);
+    }
+
+    .btn-calc {
+      margin-top: 20px;
+      width: 100%;
+      padding: 13px;
+      background: linear-gradient(135deg, var(--blue-mid), #1d4ed8);
+      color: #fff;
+      font-family: 'Heebo', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: opacity .2s, transform .1s, box-shadow .2s;
+      box-shadow: 0 4px 14px rgba(37,99,235,.4);
+    }
+    .btn-calc:hover { opacity: .92; box-shadow: 0 6px 18px rgba(37,99,235,.5); }
+    .btn-calc:active { transform: scale(.99); }
+
+    /* ── Error banner ── */
+    .error-banner {
+      background: #fef2f2;
+      border: 1px solid #fca5a5;
+      border-radius: 8px;
+      padding: 10px 14px;
+      margin-top: 14px;
+      font-size: .88rem;
+      color: #b91c1c;
+      font-weight: 500;
+      display: none;
+    }
+    .error-banner.visible { display: block; }
+
+    /* ── Results section ── */
+    .results-section {
+      max-width: 1200px;
+      margin: 32px auto 0;
+      width: calc(100% - 32px);
+    }
+    .results-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .results-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--blue-dark);
+    }
+    .results-count {
+      background: var(--blue-light);
+      color: var(--blue-mid);
+      border-radius: 20px;
+      padding: 5px 14px;
+      font-size: .85rem;
+      font-weight: 600;
+    }
+
+    /* ── Cards grid ── */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 18px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-md);
+      padding: 20px;
+      position: relative;
+      border: 1.5px solid transparent;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-lg);
+    }
+    .card.rank-1 {
+      border-color: var(--gold);
+      background: linear-gradient(160deg, #fffbeb 0%, #fff 60%);
+    }
+    .card.rank-2 {
+      border-color: #cbd5e1;
+      background: linear-gradient(160deg, #f8fafc 0%, #fff 60%);
+    }
+    .card.rank-3 {
+      border-color: #fed7aa;
+      background: linear-gradient(160deg, #fff7ed 0%, #fff 60%);
+    }
+
+    /* Rank badge */
+    .rank-badge {
+      position: absolute;
+      top: -1px;
+      left: -1px;
+      background: var(--gray-400);
+      color: #fff;
+      font-size: .72rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: var(--radius) 0 var(--radius) 0;
+    }
+    .card.rank-1 .rank-badge { background: linear-gradient(135deg, var(--gold), #d97706); }
+    .card.rank-2 .rank-badge { background: linear-gradient(135deg, #94a3b8, #64748b); }
+    .card.rank-3 .rank-badge { background: linear-gradient(135deg, #fb923c, #ea580c); }
+
+    /* Arrangement pill */
+    .arrangement {
+      text-align: center;
+      margin: 10px 0 14px;
+    }
+    .arrangement .fraction {
+      display: inline-block;
+      background: var(--blue-light);
+      color: var(--blue-dark);
+      border-radius: 20px;
+      padding: 5px 16px;
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .card.rank-1 .arrangement .fraction {
+      background: var(--gold-light);
+      color: #92400e;
+    }
+
+    /* Divider */
+    .card-divider {
+      border: none;
+      border-top: 1px solid var(--gray-200);
+      margin: 12px 0;
+    }
+
+    /* Data rows */
+    .data-rows { display: flex; flex-direction: column; gap: 7px; }
+    .data-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: .88rem;
+    }
+    .data-row .lbl {
+      color: var(--gray-600);
+      font-weight: 400;
+    }
+    .data-row .val {
+      font-weight: 600;
+      color: var(--gray-800);
+      direction: ltr;
+      text-align: left;
+    }
+
+    /* Highlight rows */
+    .highlight-row {
+      background: var(--blue-pale);
+      border-radius: 7px;
+      padding: 7px 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 4px;
+    }
+    .highlight-row .lbl { font-weight: 600; color: var(--blue-dark); font-size: .88rem; }
+    .highlight-row .val { font-weight: 700; color: var(--blue-mid); font-size: 1rem; direction: ltr; }
+    .card.rank-1 .highlight-row { background: var(--gold-light); }
+    .card.rank-1 .highlight-row .lbl { color: #78350f; }
+    .card.rank-1 .highlight-row .val  { color: #b45309; }
+
+    /* Best tag */
+    .best-tag {
+      text-align: center;
+      margin-top: 12px;
+    }
+    .best-tag span {
+      display: inline-block;
+      background: linear-gradient(135deg, var(--green), #047857);
+      color: #fff;
+      font-size: .78rem;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 20px;
+      letter-spacing: .3px;
+    }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--gray-400);
+      font-size: 1rem;
+    }
+    .empty-state .icon { font-size: 3rem; margin-bottom: 12px; }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      margin-top: 48px;
+      color: var(--gray-400);
+      font-size: .8rem;
+    }
+
+    @media (max-width: 500px) {
+      .form-grid { grid-template-columns: 1fr 1fr; }
+      .cards-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>📦 סדובסקי מתכנן קרטונים</h1>
+  <p>חישוב מידות וצריכת קרטון אופטימליים לאריזה</p>
+</header>
+
+<div class="form-card">
+  <h2>נתוני קלט</h2>
+
+  <div class="form-grid">
+    <div class="field">
+      <label>אורך מוצר <span class="unit">(מ"מ)</span></label>
+      <input type="number" id="prodL" placeholder="e.g. 200" min="1" />
+    </div>
+    <div class="field">
+      <label>רוחב מוצר <span class="unit">(מ"מ)</span></label>
+      <input type="number" id="prodW" placeholder="e.g. 150" min="1" />
+    </div>
+    <div class="field">
+      <label>גובה מוצר <span class="unit">(מ"מ)</span></label>
+      <input type="number" id="prodH" placeholder="e.g. 100" min="1" />
+    </div>
+    <div class="field">
+      <label>כמות מוצרים <span class="unit">(יח')</span></label>
+      <input type="number" id="qty" placeholder="e.g. 12" min="1" />
+    </div>
+    <div class="field">
+      <label>עובי קרטון <span class="unit">(מ"מ)</span></label>
+      <input type="number" id="thickness" placeholder="6" min="1" value="6" />
+    </div>
+    <div class="field">
+      <label>משקל יחידה <span class="unit">(גרם)</span></label>
+      <input type="number" id="unitWeight" placeholder="e.g. 500" min="0" />
+    </div>
+  </div>
+
+  <div class="error-banner" id="errorBanner"></div>
+
+  <button class="btn-calc" onclick="calculate()">חשב סידורים</button>
+</div>
+
+<div class="results-section" id="resultsSection" style="display:none;">
+  <div class="results-header">
+    <div class="results-title">תוצאות</div>
+    <div class="results-count" id="resultsCount"></div>
+  </div>
+  <div class="cards-grid" id="cardsGrid"></div>
+</div>
+
+<footer>סדובסקי מתכנן קרטונים · כל הזכויות שמורות</footer>
+
+<script>
+  /* ── Helpers ── */
+  const $ = id => document.getElementById(id);
+
+  function mm2cm(v)  { return (v / 10).toFixed(1); }
+  function mm2l(v)   { return (v / 1e6).toFixed(1); }    // mm³ → liters
+  function mm2cm3(v) { return (v / 1e3).toFixed(0); }    // mm³ → cm³
+
+  function getFactorTriplets(n) {
+    const triplets = [];
+    for (let a = 1; a <= n; a++) {
+      if (n % a !== 0) continue;
+      const n2 = n / a;
+      for (let b = 1; b <= n2; b++) {
+        if (n2 % b !== 0) continue;
+        const c = n2 / b;
+        triplets.push([a, b, c]);
+      }
+    }
+    return triplets;
+  }
+
+  function ordinalHe(rank) {
+    const map = {1:'מקום 1',2:'מקום 2',3:'מקום 3',4:'מקום 4',5:'מקום 5'};
+    return map[rank] || `מקום ${rank}`;
+  }
+
+  /* ── Main calculation ── */
+  function calculate() {
+    // clear errors
+    ['prodL','prodW','prodH','qty','thickness'].forEach(id => $('field_'+id) && ($('field_'+id).classList.remove('error')));
+    $('errorBanner').classList.remove('visible');
+    $('errorBanner').textContent = '';
+
+    const inputs = ['prodL','prodW','prodH','qty','thickness'];
+    const vals = {};
+    const errors = [];
+
+    // unitWeight is optional
+    const uwEl = $('unitWeight');
+    const unitWeightVal = uwEl && uwEl.value.trim() ? parseFloat(uwEl.value) : null;
+
+    inputs.forEach(id => {
+      const el = $(id);
+      const v = parseFloat(el.value);
+      if (!el.value.trim() || isNaN(v) || v <= 0) {
+        errors.push(labelOf(id));
+        el.classList.add('error');
+      } else {
+        el.classList.remove('error');
+        vals[id] = v;
+      }
+    });
+
+    if (!Number.isInteger(vals.qty) && vals.qty) {
+      errors.push('כמות המוצרים חייבת להיות מספר שלם');
+      $('qty').classList.add('error');
+    }
+
+    if (errors.length) {
+      $('errorBanner').textContent = 'שגיאה: יש למלא את השדות הבאים בצורה תקינה: ' + errors.filter(e => e.length > 0 && !e.includes('חייבת')).join(', ') +
+        (errors.some(e => e.includes('שלם')) ? ' · כמות המוצרים חייבת להיות מספר שלם' : '');
+      // fallback
+      if ($('errorBanner').textContent.trim() === 'שגיאה: יש למלא את השדות הבאים בצורה תקינה: ') {
+        $('errorBanner').textContent = errors.join(' · ');
+      }
+      $('errorBanner').classList.add('visible');
+      $('resultsSection').style.display = 'none';
+      return;
+    }
+
+    const { prodL, prodW, prodH, qty, thickness: t } = vals;
+    const qtyInt = Math.round(qty);
+
+    const triplets = getFactorTriplets(qtyInt);
+
+    const results = triplets.map(([a, b, c]) => {
+      const outerL = a * prodL + 2 * t;
+      const outerW = b * prodW + 2 * t;
+      const outerH = c * prodH + 4 * t;   // double wall top + double wall bottom
+
+      const volMM3  = outerL * outerW * outerH;
+      const volL    = volMM3 / 1e6;                  // mm³ → liters
+
+      // Cardboard area: 4 sides (single layer each) + top & bottom (double layer = ×4)
+      // 4 sides: 2*(L*H) + 2*(W*H) [single layer each]
+      // top+bottom: 4*(L*W)  [double layer = 2 faces × 2 layers = ×4]
+      const areaMM2 = 2*(outerL*outerH) + 2*(outerW*outerH) + 4*(outerL*outerW);
+      const areaM2  = areaMM2 / 1e6;
+
+      // Weight calculations (only if unitWeight provided)
+      const CARDBOARD_GSM = 550; // g/m²
+      const netWeightG    = unitWeightVal !== null ? unitWeightVal * qtyInt : null;
+      const cartonWeightG = areaM2 * CARDBOARD_GSM;
+      const grossWeightG  = netWeightG !== null ? netWeightG + cartonWeightG : null;
+
+      return { a, b, c, outerL, outerW, outerH, volL, areaM2, netWeightG, cartonWeightG, grossWeightG };
+    });
+
+    // Sort: volume asc, then area asc
+    results.sort((x, y) => {
+      const dv = x.volL - y.volL;
+      return dv !== 0 ? dv : x.areaM2 - y.areaM2;
+    });
+
+    renderCards(results, prodL, prodW, prodH, t, qtyInt, unitWeightVal);
+  }
+
+  function fmtWeight(grams) {
+    if (grams === null) return null;
+    if (grams >= 1000) return (grams / 1000).toFixed(2) + ' ק"ג';
+    return grams.toFixed(0) + ' גרם';
+  }
+
+  function labelOf(id) {
+    const map = { prodL:'אורך מוצר', prodW:'רוחב מוצר', prodH:'גובה מוצר', qty:'כמות מוצרים', thickness:'עובי קרטון' };
+    return map[id] || id;
+  }
+
+  /* ── Render ── */
+  function renderCards(results, prodL, prodW, prodH, t, qty, unitWeightVal) {
+    const grid = $('cardsGrid');
+    grid.innerHTML = '';
+
+    $('resultsCount').textContent = `${results.length} סידורים נמצאו`;
+    $('resultsSection').style.display = 'block';
+
+    if (results.length === 0) {
+      grid.innerHTML = '<div class="empty-state"><div class="icon">🔍</div><p>לא נמצאו סידורים</p></div>';
+      return;
+    }
+
+    results.forEach((r, idx) => {
+      const rank = idx + 1;
+      const rankClass = rank <= 3 ? `rank-${rank}` : '';
+
+      const innerL = r.a * prodL;
+      const innerW = r.b * prodW;
+      const innerH = r.c * prodH;
+
+      const card = document.createElement('div');
+      card.className = `card ${rankClass}`;
+
+      card.innerHTML = `
+        <div class="rank-badge">${ordinalHe(rank)}</div>
+
+        <div class="arrangement">
+          <span class="fraction">${r.a} × ${r.b} × ${r.c} מוצרים</span>
+        </div>
+
+        <hr class="card-divider" />
+
+        <div class="data-rows">
+          <div class="data-row">
+            <span class="lbl">מרחב פנימי (מ"מ)</span>
+            <span class="val">${innerL} × ${innerW} × ${innerH}</span>
+          </div>
+          <div class="data-row">
+            <span class="lbl">מרחב פנימי (ס"מ)</span>
+            <span class="val">${mm2cm(innerL)} × ${mm2cm(innerW)} × ${mm2cm(innerH)}</span>
+          </div>
+
+          <hr class="card-divider" />
+
+          <div class="data-row">
+            <span class="lbl">מידות חיצוניות (מ"מ)</span>
+            <span class="val">${r.outerL} × ${r.outerW} × ${r.outerH}</span>
+          </div>
+          <div class="data-row">
+            <span class="lbl">מידות חיצוניות (ס"מ)</span>
+            <span class="val">${mm2cm(r.outerL)} × ${mm2cm(r.outerW)} × ${mm2cm(r.outerH)}</span>
+          </div>
+        </div>
+
+        <hr class="card-divider" />
+
+        <div class="highlight-row">
+          <span class="lbl">נפח</span>
+          <span class="val">${r.volL.toFixed(1)} ליטר</span>
+        </div>
+
+        <div class="highlight-row" style="margin-top:6px;">
+          <span class="lbl">שטח קרטון</span>
+          <span class="val">${r.areaM2.toFixed(4)} מ"ר</span>
+        </div>
+
+        ${unitWeightVal !== null ? `
+        <hr class="card-divider" style="margin-top:10px;" />
+        <div class="data-rows" style="margin-top:4px;">
+          <div class="data-row">
+            <span class="lbl">משקל קרטון ריק</span>
+            <span class="val">${fmtWeight(r.cartonWeightG)}</span>
+          </div>
+          <div class="data-row">
+            <span class="lbl">משקל נטו (מוצרים)</span>
+            <span class="val">${fmtWeight(r.netWeightG)}</span>
+          </div>
+        </div>
+        <div class="highlight-row" style="margin-top:8px; background: var(--green-light);">
+          <span class="lbl" style="color:#065f46;">משקל ברוטו</span>
+          <span class="val" style="color:var(--green);">${fmtWeight(r.grossWeightG)}</span>
+        </div>
+        ` : ''}
+
+        ${rank === 1 ? '<div class="best-tag"><span>✔ הסידור הטוב ביותר</span></div>' : ''}
+      `;
+
+      grid.appendChild(card);
+    });
+  }
+
+  /* Allow Enter key to trigger calculation */
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter') calculate();
+  });
+</script>
+
+</body>
+</html>
