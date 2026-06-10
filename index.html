@@ -1788,21 +1788,21 @@
     if (palletEnabled) {
       const p = r.pallet;
       if (!p || p.total === 0) {
-        palletHtml = `<div class="print-section"><h3>🏗️ תכנון משטח</h3><p style="color:#ef4444;font-weight:600;">הקרטון לא מתאים למשטח</p></div>`;
+        palletHtml = `<div class="section"><h3>🏗️ תכנון משטח</h3><p style="color:#ef4444;font-weight:600;margin-top:6px;">הקרטון לא מתאים למשטח</p></div>`;
       } else {
         const zonesHtml = (p.zones || []).map(z =>
-          `<div class="print-row"><span class="lbl">אזור ${z.zoneLabel}: ${z.nx}×${z.ny} קרטונים</span><span class="val">${z.count} יח'</span></div>`
+          `<div class="row"><span class="lbl">אזור ${z.zoneLabel}: ${z.nx}×${z.ny} קרטונים</span><span class="val">${z.count} יח'</span></div>`
         ).join('');
         palletHtml = `
-        <div class="print-section">
+        <div class="section">
           <h3>🏗️ תכנון משטח</h3>
-          <div class="print-highlight" style="background:#fefce8;border-color:#fde68a;">
-            <span class="lbl" style="color:#92400e;">סה"כ קרטונים במשטח</span>
-            <span class="val" style="color:#92400e;">${p.total}</span>
+          <div class="pallet-highlight">
+            <span class="lbl">סה"כ קרטונים במשטח</span>
+            <span class="val">${p.total}</span>
           </div>
-          ${p.layers ? `<div class="print-row" style="margin-top:8px;"><span class="lbl">מספר שכבות</span><span class="val">${p.layers}</span></div>` : ''}
-          ${p.perLayer ? `<div class="print-row"><span class="lbl">קרטונים בשכבה</span><span class="val">${p.perLayer}</span></div>` : ''}
-          ${p.usedW ? `<div class="print-row"><span class="lbl">שטח בשימוש</span><span class="val">${p.usedW} × ${p.usedD} מ"מ</span></div>` : ''}
+          ${p.layers ? `<div class="row"><span class="lbl">מספר שכבות</span><span class="val">${p.layers}</span></div>` : ''}
+          ${p.perLayer ? `<div class="row"><span class="lbl">קרטונים בשכבה</span><span class="val">${p.perLayer}</span></div>` : ''}
+          ${p.usedW ? `<div class="row"><span class="lbl">שטח בשימוש</span><span class="val">${p.usedW} × ${p.usedD} מ"מ</span></div>` : ''}
           ${zonesHtml}
         </div>`;
       }
@@ -1812,60 +1812,126 @@
     let weightHtml = '';
     if (unitWeightVal !== null) {
       weightHtml = `
-        <div class="print-section">
+        <div class="section">
           <h3>⚖️ משקלים</h3>
-          <div class="print-row"><span class="lbl">משקל קרטון ריק</span><span class="val">${fmtWeight(r.cartonWeightG)}</span></div>
-          <div class="print-row"><span class="lbl">משקל נטו (מוצרים)</span><span class="val">${fmtWeight(r.netWeightG)}</span></div>
-          <div class="print-highlight">
+          <div class="row"><span class="lbl">משקל קרטון ריק</span><span class="val">${fmtWeight(r.cartonWeightG)}</span></div>
+          <div class="row"><span class="lbl">משקל נטו (מוצרים)</span><span class="val">${fmtWeight(r.netWeightG)}</span></div>
+          <div class="highlight">
             <span class="lbl">משקל ברוטו</span>
             <span class="val">${fmtWeight(r.grossWeightG)}</span>
           </div>
         </div>`;
     }
 
-    $('print-area').innerHTML = `
-      <div class="print-header">
-        <h1>📦 סדובסקי בע״מ – מתכנן קרטונים</h1>
-        <span class="print-date">${today}</span>
-      </div>
+    const fullHtml = `<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+  <meta charset="UTF-8"/>
+  <title>סדובסקי – ${productName || 'קרטון'}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    body { font-family: 'Heebo', sans-serif; color: #1e293b; direction: rtl; background: white; padding: 24px; }
+    .print-header {
+      background: #1e3a5f; color: white; padding: 16px 22px;
+      border-radius: 10px; display: flex; align-items: center;
+      justify-content: space-between; margin-bottom: 18px;
+    }
+    .print-header h1 { font-size: 1.2rem; font-weight: 800; }
+    .print-header .dt { font-size: .8rem; opacity: .8; }
+    .product-info {
+      background: #eff6ff; border: 1.5px solid #bfdbfe;
+      border-radius: 10px; padding: 14px 18px; margin-bottom: 18px;
+    }
+    .product-info h2 { font-size: 1.1rem; color: #1e3a5f; margin-bottom: 3px; }
+    .product-info .sub { font-size: .82rem; color: #64748b; margin-top: 2px; }
+    .cols { display: flex; gap: 20px; align-items: flex-start; }
+    .col-left { flex: 1.1; }
+    .col-right { flex: 1; }
+    .section { margin-bottom: 16px; }
+    .section h3 {
+      font-size: .9rem; color: #1e3a5f; font-weight: 700;
+      border-bottom: 2px solid #e2e8f0; padding-bottom: 5px; margin-bottom: 8px;
+    }
+    .row { display: flex; justify-content: space-between; padding: 4px 0; font-size: .85rem; border-bottom: 1px solid #f1f5f9; }
+    .row .lbl { color: #64748b; }
+    .row .val { font-weight: 700; }
+    .highlight {
+      background: #f0fdf4; border: 1.5px solid #86efac;
+      border-radius: 8px; padding: 9px 14px;
+      display: flex; justify-content: space-between; margin-top: 8px;
+    }
+    .highlight .lbl { color: #15803d; font-weight: 600; }
+    .highlight .val { font-weight: 800; color: #15803d; font-size: 1rem; }
+    .pallet-highlight {
+      background: #fefce8; border: 1.5px solid #fde68a;
+      border-radius: 8px; padding: 9px 14px;
+      display: flex; justify-content: space-between; margin-bottom: 8px;
+    }
+    .pallet-highlight .lbl { color: #92400e; font-weight: 600; }
+    .pallet-highlight .val { font-weight: 800; color: #92400e; font-size: 1rem; }
+    .legend { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; font-size: .82rem; font-weight: 600; }
+    .legend span { display: flex; align-items: center; gap: 5px; }
+    .legend-dot { display: inline-block; width: 13px; height: 13px; border-radius: 3px; flex-shrink: 0; }
+    .footer { margin-top: 24px; font-size: .72rem; color: #94a3b8; text-align: center; border-top: 1px solid #e2e8f0; padding-top: 10px; }
+    @media print {
+      body { padding: 0; }
+      @page { margin: 15mm; size: A4 portrait; }
+    }
+  </style>
+</head>
+<body>
+  <div class="print-header">
+    <h1>📦 סדובסקי בע״מ – מתכנן קרטונים</h1>
+    <span class="dt">${today}</span>
+  </div>
 
-      <div class="print-product-info">
-        <h2>${productName || 'ללא שם מוצר'}</h2>
-        ${sku ? `<div class="sku">מק"ט: <strong>${sku}</strong></div>` : ''}
-        <div class="sku" style="margin-top:4px;">מידות מוצר: ${r.d1} × ${r.d2} × ${r.d3} מ"מ</div>
-      </div>
+  <div class="product-info">
+    <h2>${productName || 'ללא שם מוצר'}</h2>
+    ${sku ? `<div class="sub">מק"ט: <strong>${sku}</strong></div>` : ''}
+    <div class="sub">מידות מוצר: ${r.d1} × ${r.d2} × ${r.d3} מ"מ</div>
+  </div>
 
-      <div class="print-cols">
-        <div>
-          <div class="print-section">
-            <h3>📐 סידור בקרטון — ${r.a} × ${r.b} × ${r.c} מוצרים</h3>
-            <div class="print-row"><span class="lbl">מרחב פנימי (מ"מ)</span><span class="val">${innerL} × ${innerW} × ${innerH}</span></div>
-            <div class="print-row"><span class="lbl">מרחב פנימי (ס"מ)</span><span class="val">${mm2cm(innerL)} × ${mm2cm(innerW)} × ${mm2cm(innerH)}</span></div>
-            <div class="print-row"><span class="lbl">מידות חיצוניות (מ"מ)</span><span class="val">${r.outerL} × ${r.outerW} × ${r.outerH}</span></div>
-            <div class="print-row"><span class="lbl">מידות חיצוניות (ס"מ)</span><span class="val">${mm2cm(r.outerL)} × ${mm2cm(r.outerW)} × ${mm2cm(r.outerH)}</span></div>
-          </div>
-          ${weightHtml}
-          ${palletHtml}
+  <div class="cols">
+    <div class="col-left">
+      <div class="section">
+        <h3>📐 סידור בקרטון — ${r.a} × ${r.b} × ${r.c} מוצרים</h3>
+        <div class="row"><span class="lbl">מרחב פנימי (מ"מ)</span><span class="val">${innerL} × ${innerW} × ${innerH}</span></div>
+        <div class="row"><span class="lbl">מרחב פנימי (ס"מ)</span><span class="val">${mm2cm(innerL)} × ${mm2cm(innerW)} × ${mm2cm(innerH)}</span></div>
+        <div class="row"><span class="lbl">מידות חיצוניות (מ"מ)</span><span class="val">${r.outerL} × ${r.outerW} × ${r.outerH}</span></div>
+        <div class="row"><span class="lbl">מידות חיצוניות (ס"מ)</span><span class="val">${mm2cm(r.outerL)} × ${mm2cm(r.outerW)} × ${mm2cm(r.outerH)}</span></div>
+      </div>
+      ${weightHtml}
+      ${palletHtml}
+    </div>
+    <div class="col-right">
+      <div class="section">
+        <h3>🗂️ ציור תלת-ממדי</h3>
+        <svg width="100%" viewBox="0 0 320 240" style="display:block;border-radius:8px;background:#f8fafc;">${isoSvgStr}</svg>
+        <div class="legend" style="margin-top:10px;">
+          <span><span class="legend-dot" style="background:${col1.edge}"></span>${r.d1} מ"מ (×${r.a})</span>
+          <span><span class="legend-dot" style="background:${col2.edge}"></span>${r.d2} מ"מ (×${r.b})</span>
+          <span><span class="legend-dot" style="background:${col3.edge}"></span>${r.d3} מ"מ (×${r.c})</span>
         </div>
-        <div>
-          <div class="print-section">
-            <h3>🗂️ ציור תלת-ממדי</h3>
-            <div class="print-iso">
-              <svg width="320" height="240" viewBox="0 0 320 240">${isoSvgStr}</svg>
-            </div>
-            <div class="print-legend">
-              <span><span class="print-legend-dot" style="background:${col1.edge}"></span>${r.d1} מ"מ (×${r.a})</span>
-              <span><span class="print-legend-dot" style="background:${col2.edge}"></span>${r.d2} מ"מ (×${r.b})</span>
-              <span><span class="print-legend-dot" style="background:${col3.edge}"></span>${r.d3} מ"מ (×${r.c})</span>
-            </div>
-          </div>
-        </div>
       </div>
+    </div>
+  </div>
 
-      <div class="print-footer">כל הזכויות שמורות לניב סדובסקי © | סדובסקי בע״מ – מתכנן קרטונים</div>
-    `;
+  <div class="footer">כל הזכויות שמורות לניב סדובסקי © | סדובסקי בע״מ – מתכנן קרטונים</div>
 
-    setTimeout(() => window.print(), 100);
+  <script>window.onload = function(){ window.print(); };<\/script>
+</body>
+</html>`;
+
+    const win = window.open('', '_blank', 'width=900,height=700');
+    if (!win) {
+      alert('אנא אפשר חלונות קופצים בדפדפן כדי להפיק PDF');
+      return;
+    }
+    win.document.open();
+    win.document.write(fullHtml);
+    win.document.close();
   }
 </script>
 
