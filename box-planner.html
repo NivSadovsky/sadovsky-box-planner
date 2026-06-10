@@ -170,7 +170,7 @@
       margin-top: 0;
     }
     .pallet-options.open {
-      max-height: 500px;
+      max-height: 600px;
       opacity: 1;
       margin-top: 14px;
     }
@@ -185,6 +185,14 @@
       font-weight: 700;
       color: var(--blue-dark);
       margin-bottom: 12px;
+      text-align: right;
+    }
+
+    /* Overhang info text */
+    .overhang-info {
+      font-size: .82rem;
+      color: #475a8a;
+      margin-bottom: 8px;
       text-align: right;
     }
 
@@ -380,6 +388,47 @@
       color: #92400e;
     }
 
+    /* Pallet total highlight at top of card */
+    .pallet-total-top {
+      background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+      border: 1.5px solid #6ee7b7;
+      border-radius: 10px;
+      padding: 10px 14px;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    .pallet-total-top .lbl-top {
+      font-size: .82rem;
+      font-weight: 600;
+      color: #065f46;
+      display: block;
+      margin-bottom: 2px;
+    }
+    .pallet-total-top .val-top {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #047857;
+      line-height: 1.1;
+    }
+    .card.rank-1 .pallet-total-top {
+      background: linear-gradient(135deg, var(--gold-light), #fde68a);
+      border-color: var(--gold);
+    }
+    .card.rank-1 .pallet-total-top .lbl-top { color: #78350f; }
+    .card.rank-1 .pallet-total-top .val-top  { color: #b45309; }
+
+    /* Footprint line */
+    .footprint-row {
+      text-align: center;
+      font-size: .8rem;
+      color: var(--gray-600);
+      margin-bottom: 8px;
+    }
+    .footprint-row span {
+      font-weight: 600;
+      color: var(--gray-800);
+    }
+
     /* Divider */
     .card-divider {
       border: none;
@@ -428,13 +477,6 @@
     .highlight-row.green .lbl { color: #065f46 !important; }
     .highlight-row.green .val { color: var(--green) !important; }
 
-    .highlight-row.pallet-total {
-      background: #ecfdf5 !important;
-      border: 1.5px solid #6ee7b7;
-    }
-    .highlight-row.pallet-total .lbl { color: #065f46 !important; font-size: 1rem !important; }
-    .highlight-row.pallet-total .val { color: #047857 !important; font-size: 1.2rem !important; }
-
     /* Pallet stats */
     .pallet-stats { display: flex; flex-direction: column; gap: 7px; }
 
@@ -447,26 +489,6 @@
       background: #fef2f2;
       border-radius: 7px;
       border: 1px solid #fca5a5;
-    }
-
-    /* Layout button */
-    .btn-layout {
-      width: 100%;
-      margin-top: 10px;
-      padding: 9px 14px;
-      background: #fff;
-      border: 1.5px solid var(--blue-mid);
-      border-radius: 8px;
-      color: var(--blue-mid);
-      font-family: 'Heebo', sans-serif;
-      font-size: .9rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background .18s, color .18s;
-    }
-    .btn-layout:hover {
-      background: var(--blue-mid);
-      color: #fff;
     }
 
     /* Best tag */
@@ -575,6 +597,62 @@
       color: var(--blue-dark);
     }
 
+    /* ── Load more button ── */
+    .btn-load-more {
+      display: block;
+      margin: 24px auto;
+      padding: 10px 32px;
+      background: #fff;
+      border: 2px solid var(--blue-mid);
+      border-radius: 10px;
+      color: var(--blue-mid);
+      font-family: 'Heebo', sans-serif;
+      font-size: .98rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .18s, color .18s, box-shadow .18s;
+      box-shadow: var(--shadow-sm);
+    }
+    .btn-load-more:hover {
+      background: var(--blue-mid);
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(37,99,235,.3);
+    }
+
+    /* ── Isometric SVG ── */
+    .iso-svg {
+      display: block;
+      width: 100%;
+      margin: 8px 0 2px;
+      border-radius: 8px;
+      background: #f0f6ff;
+    }
+    .iso-label {
+      font-size: .72rem;
+      color: var(--gray-400);
+      text-align: center;
+      margin-bottom: 6px;
+      direction: ltr;
+    }
+
+    /* ── Pallet mini SVG ── */
+    .pallet-mini-label {
+      font-size: .78rem;
+      color: var(--gray-600);
+      font-weight: 600;
+      text-align: right;
+      margin-bottom: 4px;
+      margin-top: 8px;
+    }
+    .pallet-mini-svg {
+      display: block;
+      width: 100%;
+      margin: 4px 0;
+      border-radius: 8px;
+      background: var(--gray-50);
+      cursor: pointer;
+    }
+
     @media (max-width: 600px) {
       .form-grid { grid-template-columns: 1fr 1fr; }
       .cards-grid { grid-template-columns: 1fr; }
@@ -647,6 +725,7 @@
           <input type="number" id="palH" min="1" value="2000" />
         </div>
       </div>
+      <p class="overhang-info">✦ החישוב כולל בליטה אפשרית של עד 40 מ"מ מכל כיוון</p>
       <div class="overhang-row">
         <input type="checkbox" id="noOverhang" />
         <label for="noOverhang">ללא בליטה מהמשטח</label>
@@ -665,6 +744,7 @@
     <div class="results-count" id="resultsCount"></div>
   </div>
   <div class="cards-grid" id="cardsGrid"></div>
+  <button id="loadMoreBtn" class="btn-load-more" style="display:none;" onclick="loadMore()"></button>
 </div>
 
 <footer>כל הזכויות שמורות לניב סדובסקי ©</footer>
@@ -720,7 +800,6 @@
   function togglePalletSection() {
     const cb  = $('enablePallet');
     const sec = $('palletOptions');
-    // If click was on the row (not checkbox), toggle the checkbox
     if (event && event.target !== cb) {
       cb.checked = !cb.checked;
     }
@@ -824,7 +903,32 @@
     const layers   = Math.floor(palH / outerH);
     const total    = perLayer * layers;
 
-    return { perLayer, layers, total, arrangement: best, palW, palD, palH, noOverhang, ePalW, ePalD };
+    // Calculate actual footprint used by cartons
+    let usedW = 0, usedD = 0;
+    if (best) {
+      const zA = best.zoneA;
+      const zB = best.zoneB;
+      const axis = best.splitAxis;
+      if (axis === 'W' || axis === 'W2') {
+        // Split along X (width) axis
+        usedW = zA.rows * zA.cartonW + zB.rows * zB.cartonW;
+        usedD = Math.max(
+          zA.cols > 0 ? zA.cols * zA.cartonH : 0,
+          zB.cols > 0 ? zB.cols * zB.cartonH : 0
+        );
+      } else {
+        // Split along Y (depth) axis
+        usedW = Math.max(
+          zA.rows > 0 ? zA.rows * zA.cartonW : 0,
+          zB.rows > 0 ? zB.rows * zB.cartonW : 0
+        );
+        usedD = zA.cols * zA.cartonH + zB.cols * zB.cartonH;
+      }
+      best.usedW = usedW;
+      best.usedD = usedD;
+    }
+
+    return { perLayer, layers, total, arrangement: best, palW, palD, palH, noOverhang, ePalW, ePalD, usedW, usedD };
   }
 
   /* ── Main calculation ── */
@@ -915,7 +1019,24 @@
         const result = { a, b, c, d1, d2, d3, outerL, outerW, outerH, volL, areaM2, netWeightG, cartonWeightG, grossWeightG };
 
         if (palletEnabled) {
-          result.pallet = calcPalletForCarton(outerL, outerW, outerH, palW, palD, palH, noOverhang);
+          if (noOverhang) {
+            // Only calculate without overhang
+            result.pallet = calcPalletForCarton(outerL, outerW, outerH, palW, palD, palH, true);
+            result.usedNoOverhang = true;
+          } else {
+            // Calculate both and pick the better one
+            const palWith    = calcPalletForCarton(outerL, outerW, outerH, palW, palD, palH, false);
+            const palWithout = calcPalletForCarton(outerL, outerW, outerH, palW, palD, palH, true);
+            const totalWith    = palWith    ? palWith.total    : 0;
+            const totalWithout = palWithout ? palWithout.total : 0;
+            if (totalWithout >= totalWith) {
+              result.pallet = palWithout;
+              result.usedNoOverhang = true;
+            } else {
+              result.pallet = palWith;
+              result.usedNoOverhang = false;
+            }
+          }
         }
 
         results.push(result);
@@ -927,6 +1048,10 @@
         const px = x.pallet ? x.pallet.total : -1;
         const py = y.pallet ? y.pallet.total : -1;
         if (py !== px) return py - px;
+        // usedNoOverhang true ranks higher
+        const nx = x.usedNoOverhang ? 1 : 0;
+        const ny = y.usedNoOverhang ? 1 : 0;
+        if (ny !== nx) return ny - nx;
         return x.volL - y.volL;
       });
     } else {
@@ -950,8 +1075,17 @@
     return map[id] || id;
   }
 
+  /* ── Global state for load more ── */
+  let _allResults = [];
+  let _palletEnabled = false;
+  let _unitWeightVal = null;
+
   /* ── Render ── */
   function renderCards(results, palletEnabled, unitWeightVal) {
+    _allResults = results;
+    _palletEnabled = palletEnabled;
+    _unitWeightVal = unitWeightVal;
+
     const grid = $('cardsGrid');
     grid.innerHTML = '';
 
@@ -960,123 +1094,367 @@
 
     if (results.length === 0) {
       grid.innerHTML = '<div class="empty-state"><div class="icon">🔍</div><p>לא נמצאו סידורים</p></div>';
+      $('loadMoreBtn').style.display = 'none';
       return;
     }
 
-    results.forEach((r, idx) => {
-      const rank      = idx + 1;
-      const rankClass = rank <= 3 ? `rank-${rank}` : '';
+    const initial = Math.min(4, results.length);
+    for (let i = 0; i < initial; i++) {
+      grid.appendChild(buildCard(results[i], i + 1, palletEnabled, unitWeightVal));
+    }
 
-      const innerL = r.a * r.d1;
-      const innerW = r.b * r.d2;
-      const innerH = r.c * r.d3;
+    const btn = $('loadMoreBtn');
+    if (results.length > 4) {
+      btn.textContent = `טען עוד סידורים (${results.length - 4} נוספים)`;
+      btn.style.display = 'block';
+    } else {
+      btn.style.display = 'none';
+    }
+  }
 
-      /* Pallet HTML block */
-      let palletHtml = '';
-      if (palletEnabled) {
-        const p = r.pallet;
-        if (!p || p.total === 0) {
-          palletHtml = `
-            <hr class="card-divider" />
-            <div class="pallet-no-fit">הקרטון לא מתאים למשטח</div>
-          `;
-        } else {
-          const arrangementData = encodeURIComponent(JSON.stringify(p.arrangement));
-          palletHtml = `
-            <hr class="card-divider" />
-            <div class="pallet-stats">
-              <div class="data-row">
-                <span class="lbl">קרטונים בשכבה</span>
-                <span class="val">${p.perLayer}</span>
-              </div>
-              <div class="data-row">
-                <span class="lbl">מספר שכבות</span>
-                <span class="val">${p.layers}</span>
-              </div>
-              <div class="highlight-row pallet-total" style="margin-top:4px;">
-                <span class="lbl">סך קרטונים במשטח</span>
-                <span class="val">${p.total}</span>
-              </div>
-              <button class="btn-layout" onclick="showLayout('${arrangementData}', ${r.outerL}, ${r.outerW}, ${r.outerH}, ${p.layers}, ${p.total}, ${p.perLayer}, ${p.palW}, ${p.palD}, ${p.noOverhang ? 1 : 0})">📐 הצג פריסה</button>
-            </div>
+  function loadMore() {
+    const grid = $('cardsGrid');
+    for (let i = 4; i < _allResults.length; i++) {
+      grid.appendChild(buildCard(_allResults[i], i + 1, _palletEnabled, _unitWeightVal));
+    }
+    $('loadMoreBtn').style.display = 'none';
+  }
+
+  function buildCard(r, rank, palletEnabled, unitWeightVal) {
+    const rankClass = rank <= 3 ? `rank-${rank}` : '';
+
+    const innerL = r.a * r.d1;
+    const innerW = r.b * r.d2;
+    const innerH = r.c * r.d3;
+
+    /* Pallet HTML block */
+    let palletTotalTopHtml = '';
+    let footprintHtml = '';
+    let palletStatsHtml = '';
+    let miniSvgHtml = '';
+
+    if (palletEnabled) {
+      const p = r.pallet;
+      if (!p || p.total === 0) {
+        palletStatsHtml = `
+          <hr class="card-divider" />
+          <div class="pallet-no-fit">הקרטון לא מתאים למשטח</div>
+        `;
+      } else {
+        palletTotalTopHtml = `
+          <div class="pallet-total-top">
+            <span class="lbl-top">סך קרטונים במשטח</span>
+            <div class="val-top">${p.total}</div>
+          </div>
+        `;
+
+        if (p.usedW && p.usedD) {
+          footprintHtml = `
+            <div class="footprint-row">שטח בשימוש: <span>${p.usedW} × ${p.usedD} מ"מ</span></div>
           `;
         }
-      }
 
-      const card = document.createElement('div');
-      card.className = `card ${rankClass}`;
-
-      card.innerHTML = `
-        <div class="rank-badge">${ordinalHe(rank)}</div>
-
-        <div class="arrangement">
-          <span class="fraction">${r.a} × ${r.b} × ${r.c} מוצרים</span>
-          <div style="font-size:.78rem; color:var(--gray-400); margin-top:5px;">
-            מוצר: ${r.d1}×${r.d2}×${r.d3} מ"מ
-          </div>
-        </div>
-
-        <hr class="card-divider" />
-
-        <div class="data-rows">
-          <div class="data-row">
-            <span class="lbl">מרחב פנימי (מ"מ)</span>
-            <span class="val">${innerL} × ${innerW} × ${innerH}</span>
-          </div>
-          <div class="data-row">
-            <span class="lbl">מרחב פנימי (ס"מ)</span>
-            <span class="val">${mm2cm(innerL)} × ${mm2cm(innerW)} × ${mm2cm(innerH)}</span>
-          </div>
-
+        const arrangementData = encodeURIComponent(JSON.stringify(p.arrangement));
+        palletStatsHtml = `
           <hr class="card-divider" />
+          <div class="pallet-stats">
+            <div class="data-row">
+              <span class="lbl">קרטונים בשכבה</span>
+              <span class="val">${p.perLayer}</span>
+            </div>
+            <div class="data-row">
+              <span class="lbl">מספר שכבות</span>
+              <span class="val">${p.layers}</span>
+            </div>
+          </div>
+        `;
 
-          <div class="data-row">
-            <span class="lbl">מידות חיצוניות (מ"מ)</span>
-            <span class="val">${r.outerL} × ${r.outerW} × ${r.outerH}</span>
-          </div>
-          <div class="data-row">
-            <span class="lbl">מידות חיצוניות (ס"מ)</span>
-            <span class="val">${mm2cm(r.outerL)} × ${mm2cm(r.outerW)} × ${mm2cm(r.outerH)}</span>
-          </div>
+        // Mini pallet SVG placeholder (will be filled after element appended)
+        miniSvgHtml = `
+          <div class="pallet-mini-label">פריסת משטח</div>
+          <svg class="pallet-mini-svg" width="260" height="160" viewBox="0 0 260 160"
+            data-arrangement="${arrangementData}"
+            data-outerl="${r.outerL}" data-outerw="${r.outerW}" data-outerh="${r.outerH}"
+            data-layers="${p.layers}" data-total="${p.total}" data-perlayer="${p.perLayer}"
+            data-palw="${p.palW}" data-pald="${p.palD}" data-nooverhang="${p.noOverhang ? 1 : 0}"
+            onclick="openLayoutFromMini(this)"
+          ></svg>
+        `;
+      }
+    }
+
+    // Isometric SVG placeholder
+    const isoHtml = `
+      <svg class="iso-svg" width="260" height="180" viewBox="0 0 260 180"
+        data-a="${r.a}" data-b="${r.b}" data-c="${r.c}"
+        data-d1="${r.d1}" data-d2="${r.d2}" data-d3="${r.d3}"
+      ></svg>
+      <div class="iso-label">${r.a}×${r.b}×${r.c} | ${r.d1}×${r.d2}×${r.d3} מ"מ</div>
+    `;
+
+    const card = document.createElement('div');
+    card.className = `card ${rankClass}`;
+
+    card.innerHTML = `
+      <div class="rank-badge">${ordinalHe(rank)}</div>
+
+      <div class="arrangement">
+        <span class="fraction">${r.a} × ${r.b} × ${r.c} מוצרים</span>
+        <div style="font-size:.78rem; color:var(--gray-400); margin-top:5px;">
+          מוצר: ${r.d1}×${r.d2}×${r.d3} מ"מ
+        </div>
+      </div>
+
+      ${palletTotalTopHtml}
+      ${footprintHtml}
+
+      <hr class="card-divider" />
+
+      <div class="data-rows">
+        <div class="data-row">
+          <span class="lbl">מרחב פנימי (מ"מ)</span>
+          <span class="val">${innerL} × ${innerW} × ${innerH}</span>
+        </div>
+        <div class="data-row">
+          <span class="lbl">מרחב פנימי (ס"מ)</span>
+          <span class="val">${mm2cm(innerL)} × ${mm2cm(innerW)} × ${mm2cm(innerH)}</span>
         </div>
 
         <hr class="card-divider" />
 
-        <div class="highlight-row">
-          <span class="lbl">נפח</span>
-          <span class="val">${r.volL.toFixed(1)} ליטר</span>
+        <div class="data-row">
+          <span class="lbl">מידות חיצוניות (מ"מ)</span>
+          <span class="val">${r.outerL} × ${r.outerW} × ${r.outerH}</span>
         </div>
-
-        <div class="highlight-row" style="margin-top:6px;">
-          <span class="lbl">שטח קרטון</span>
-          <span class="val">${r.areaM2.toFixed(4)} מ"ר</span>
+        <div class="data-row">
+          <span class="lbl">מידות חיצוניות (ס"מ)</span>
+          <span class="val">${mm2cm(r.outerL)} × ${mm2cm(r.outerW)} × ${mm2cm(r.outerH)}</span>
         </div>
+      </div>
 
-        ${unitWeightVal !== null ? `
-        <hr class="card-divider" style="margin-top:10px;" />
-        <div class="data-rows" style="margin-top:4px;">
-          <div class="data-row">
-            <span class="lbl">משקל קרטון ריק</span>
-            <span class="val">${fmtWeight(r.cartonWeightG)}</span>
-          </div>
-          <div class="data-row">
-            <span class="lbl">משקל נטו (מוצרים)</span>
-            <span class="val">${fmtWeight(r.netWeightG)}</span>
-          </div>
+      ${unitWeightVal !== null ? `
+      <hr class="card-divider" style="margin-top:10px;" />
+      <div class="data-rows" style="margin-top:4px;">
+        <div class="data-row">
+          <span class="lbl">משקל קרטון ריק</span>
+          <span class="val">${fmtWeight(r.cartonWeightG)}</span>
         </div>
-        <div class="highlight-row green" style="margin-top:8px;">
-          <span class="lbl">משקל ברוטו</span>
-          <span class="val">${fmtWeight(r.grossWeightG)}</span>
+        <div class="data-row">
+          <span class="lbl">משקל נטו (מוצרים)</span>
+          <span class="val">${fmtWeight(r.netWeightG)}</span>
         </div>
-        ` : ''}
+      </div>
+      <div class="highlight-row green" style="margin-top:8px;">
+        <span class="lbl">משקל ברוטו</span>
+        <span class="val">${fmtWeight(r.grossWeightG)}</span>
+      </div>
+      ` : ''}
 
-        ${palletHtml}
+      ${palletStatsHtml}
 
-        ${rank === 1 ? '<div class="best-tag"><span>✔ הסידור הטוב ביותר</span></div>' : ''}
-      `;
+      ${isoHtml}
+      ${miniSvgHtml}
 
-      grid.appendChild(card);
-    });
+      ${rank === 1 ? '<div class="best-tag"><span>✔ הסידור הטוב ביותר</span></div>' : ''}
+    `;
+
+    // Draw isometric after element created
+    const isoSvg = card.querySelector('.iso-svg');
+    if (isoSvg) {
+      drawIsometric(isoSvg, r.a, r.b, r.c, r.d1, r.d2, r.d3);
+    }
+
+    // Draw mini pallet top-view
+    const miniSvg = card.querySelector('.pallet-mini-svg');
+    if (miniSvg) {
+      const arrangement = JSON.parse(decodeURIComponent(miniSvg.dataset.arrangement));
+      const noOvr = miniSvg.dataset.nooverhang === '1';
+      drawPalletMini(miniSvg, arrangement, parseFloat(miniSvg.dataset.palw), parseFloat(miniSvg.dataset.pald), noOvr);
+    }
+
+    return card;
+  }
+
+  /* ── 3D Isometric Drawing ── */
+  function drawIsometric(svgEl, a, b, c, d1, d2, d3) {
+    const SVG_W = 260, SVG_H = 180;
+    const COS30 = Math.cos(Math.PI / 6);
+    const SIN30 = Math.sin(Math.PI / 6);
+
+    const maxDim = Math.max(d1, d2, d3);
+
+    // Scale so the whole stack fits
+    // Width in iso = (a*d1 + b*d2) * COS30
+    // Height in iso = (a*d1 + b*d2) * SIN30 + c*d3
+    const rawW = (a * d1 + b * d2) * COS30;
+    const rawH = (a * d1 + b * d2) * SIN30 + c * d3;
+    const margin = 0.85;
+    let scale = Math.min(SVG_W / rawW, SVG_H / rawH) * margin;
+    if (!isFinite(scale) || scale <= 0) scale = 1;
+
+    // Cell sizes in isometric space
+    const cellW_x = d1 * scale;  // depth (a) in X direction
+    const cellW_y = d2 * scale;  // width (b) in Y direction
+    const cellH   = d3 * scale;  // height (c)
+
+    // Center point (base of the stack at center-bottom)
+    const cx = SVG_W / 2;
+    // stack height in px
+    const stackH = (a * d1 + b * d2) * SIN30 * scale + c * d3 * scale;
+    const cy = SVG_H / 2 + stackH / 2 - 10;
+
+    // iso origin of box at grid (xi, yi, zi):
+    // ox = cx + (yi * cellW_y - xi * cellW_x) * COS30
+    // oy = cy - (yi * cellW_y + xi * cellW_x) * SIN30 - zi * cellH
+    // But cellW_x and cellW_y are already scaled.
+
+    function isoOrigin(xi, yi, zi) {
+      const ox = cx + (yi * cellW_y - xi * cellW_x) * COS30;
+      const oy = cy - (yi * cellW_y + xi * cellW_x) * SIN30 - zi * cellH;
+      return [ox, oy];
+    }
+
+    // 6 vertices of a box from its front-bottom-left corner (ox, oy):
+    // top face vertices, right face, left face
+    function boxFaces(ox, oy) {
+      // In iso space:
+      // dx_right = cellW_y * COS30, dy_right = cellW_y * SIN30 (Y axis, rightward)
+      // dx_left  = -cellW_x * COS30, dy_left = cellW_x * SIN30 (X axis, leftward)
+      // dx_up    = 0, dy_up = -cellH (Z axis, upward)
+      const rx = cellW_y * COS30, ry = cellW_y * SIN30;
+      const lx = -cellW_x * COS30, ly = cellW_x * SIN30;
+      const ux = 0, uy = -cellH;
+
+      // Bottom front point (ox, oy)
+      // 8 corners
+      const p000 = [ox, oy];
+      const p100 = [ox + lx, oy + ly];          // x+1
+      const p010 = [ox + rx, oy + ry];          // y+1
+      const p110 = [ox + lx + rx, oy + ly + ry]; // x+1,y+1
+      const p001 = [ox + ux, oy + uy];           // z+1
+      const p101 = [ox + lx + ux, oy + ly + uy];
+      const p011 = [ox + rx + ux, oy + ry + uy];
+      const p111 = [ox + lx + rx + ux, oy + ly + ry + uy];
+
+      // Top face: p001, p101, p111, p011
+      const top = [p001, p101, p111, p011];
+      // Right face (y side, front): p000, p010, p011, p001
+      const right = [p000, p010, p011, p001];
+      // Left face (x side, front): p000, p100, p101, p001
+      const left = [p000, p100, p101, p001];
+
+      return { top, right, left };
+    }
+
+    function pts2poly(pts) {
+      return pts.map(p => p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ');
+    }
+
+    let svgContent = '';
+
+    // Draw order: bottom layers first, back to front
+    for (let zi = 0; zi < c; zi++) {
+      for (let xi = a - 1; xi >= 0; xi--) {
+        for (let yi = 0; yi < b; yi++) {
+          const [ox, oy] = isoOrigin(xi, yi, zi);
+          const { top, right, left } = boxFaces(ox, oy);
+
+          svgContent += `<polygon points="${pts2poly(top)}"   fill="#93c5fd" stroke="white" stroke-width="0.5"/>`;
+          svgContent += `<polygon points="${pts2poly(right)}" fill="#3b82f6" stroke="white" stroke-width="0.5"/>`;
+          svgContent += `<polygon points="${pts2poly(left)}"  fill="#1d4ed8" stroke="white" stroke-width="0.5"/>`;
+        }
+      }
+    }
+
+    svgEl.innerHTML = svgContent;
+  }
+
+  /* ── Pallet Mini Top-View ── */
+  function drawPalletMini(svgEl, arrangement, palW, palD, noOverhang) {
+    const SVG_W = 260, SVG_H = 160;
+    const PAD = 16;
+    const drawW = SVG_W - PAD * 2;
+    const drawH = SVG_H - PAD * 2;
+
+    const ePalW = arrangement.effectivePalW || palW;
+    const ePalD = arrangement.effectivePalD || palD;
+
+    const scale = Math.min(drawW / ePalW, drawH / ePalD);
+    const pxW   = ePalW * scale;
+    const pxD   = ePalD * scale;
+    const offX  = PAD + (drawW - pxW) / 2;
+    const offY  = PAD + (drawH - pxD) / 2;
+
+    function toX(mm) { return offX + mm * scale; }
+    function toY(mm) { return offY + mm * scale; }
+
+    let svg = '';
+
+    // Pallet background
+    svg += `<rect x="${offX}" y="${offY}" width="${pxW}" height="${pxD}" fill="#e5e7eb" stroke="#9ca3af" stroke-width="1" rx="2"/>`;
+
+    // Dashed inner pallet outline if overhang allowed
+    if (!noOverhang) {
+      const innerOffX = toX(40);
+      const innerOffY = toY(40);
+      const innerW    = palW * scale;
+      const innerH    = palD * scale;
+      svg += `<rect x="${innerOffX}" y="${innerOffY}" width="${innerW}" height="${innerH}" fill="none" stroke="#6b7280" stroke-width="0.8" stroke-dasharray="4,3" rx="1"/>`;
+    }
+
+    // Zone A cartons (blue)
+    const zA = arrangement.zoneA;
+    if (zA && zA.rows > 0 && zA.cols > 0) {
+      const cW = zA.cartonW * scale;
+      const cH = zA.cartonH * scale;
+      for (let row = 0; row < zA.rows; row++) {
+        for (let col = 0; col < zA.cols; col++) {
+          const cx = toX(zA.x + row * zA.cartonW);
+          const cy = toY(zA.y + col * zA.cartonH);
+          svg += `<rect x="${cx}" y="${cy}" width="${cW}" height="${cH}" fill="#3b82f6" stroke="#fff" stroke-width="0.8" rx="1"/>`;
+        }
+      }
+      if (zA.count > 0) {
+        const lx = toX(zA.x + zA.w / 2);
+        const ly = toY(zA.y + zA.h / 2);
+        svg += `<text x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-family="Heebo,sans-serif" font-size="11" font-weight="700">${zA.count}</text>`;
+      }
+    }
+
+    // Zone B cartons (teal)
+    const zB = arrangement.zoneB;
+    if (zB && zB.rows > 0 && zB.cols > 0) {
+      const cW = zB.cartonW * scale;
+      const cH = zB.cartonH * scale;
+      for (let row = 0; row < zB.rows; row++) {
+        for (let col = 0; col < zB.cols; col++) {
+          const cx = toX(zB.x + row * zB.cartonW);
+          const cy = toY(zB.y + col * zB.cartonH);
+          svg += `<rect x="${cx}" y="${cy}" width="${cW}" height="${cH}" fill="#0d9488" stroke="#fff" stroke-width="0.8" rx="1"/>`;
+        }
+      }
+      if (zB.count > 0) {
+        const lx = toX(zB.x + zB.w / 2);
+        const ly = toY(zB.y + zB.h / 2);
+        svg += `<text x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-family="Heebo,sans-serif" font-size="11" font-weight="700">${zB.count}</text>`;
+      }
+    }
+
+    svgEl.innerHTML = svg;
+  }
+
+  function openLayoutFromMini(svgEl) {
+    const arrangementJson = svgEl.dataset.arrangement;
+    const outerL    = parseFloat(svgEl.dataset.outerl);
+    const outerW    = parseFloat(svgEl.dataset.outerw);
+    const outerH    = parseFloat(svgEl.dataset.outerh);
+    const layers    = parseInt(svgEl.dataset.layers);
+    const total     = parseInt(svgEl.dataset.total);
+    const perLayer  = parseInt(svgEl.dataset.perlayer);
+    const palW      = parseFloat(svgEl.dataset.palw);
+    const palD      = parseFloat(svgEl.dataset.pald);
+    const noOvr     = svgEl.dataset.nooverhang === '1' ? 1 : 0;
+    showLayout(arrangementJson, outerL, outerW, outerH, layers, total, perLayer, palW, palD, noOvr);
   }
 
   /* ── Layout Modal ── */
@@ -1105,7 +1483,7 @@
     // Pallet background
     svg += `<rect x="${offX}" y="${offY}" width="${pxW}" height="${pxD}" fill="#e5e7eb" stroke="#9ca3af" stroke-width="1.5" rx="3"/>`;
 
-    // Dashed inner line if overhang allowed (actual pallet inside effective footprint)
+    // Dashed inner line if overhang allowed
     if (!noOverhang) {
       const innerOffX = toSvgX(40);
       const innerOffY = toSvgY(40);
@@ -1126,7 +1504,6 @@
           svg += `<rect x="${cx}" y="${cy}" width="${cW}" height="${cH}" fill="#3b82f6" stroke="#fff" stroke-width="1" rx="1"/>`;
         }
       }
-      // Zone label
       if (zA.count > 0) {
         const lx = toSvgX(zA.x + zA.w / 2);
         const ly = toSvgY(zA.y + zA.h / 2);
@@ -1159,7 +1536,6 @@
 
     $('layoutSvg').innerHTML = svg;
 
-    // Summary text
     const zA2 = arrangement.zoneA;
     const zB2 = arrangement.zoneB;
     const zoneAStr = (zA2 && zA2.count > 0) ? `${zA2.rows}×${zA2.cols}` : null;
