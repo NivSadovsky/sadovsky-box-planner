@@ -638,16 +638,18 @@
     .iso-legend {
       display: flex;
       justify-content: center;
-      gap: 14px;
-      font-size: .72rem;
-      color: var(--gray-600);
+      gap: 12px;
+      font-size: .85rem;
+      font-weight: 600;
+      color: var(--gray-700);
       margin-bottom: 8px;
+      flex-wrap: wrap;
     }
-    .iso-legend span { display: flex; align-items: center; gap: 4px; }
+    .iso-legend span { display: flex; align-items: center; gap: 5px; }
     .iso-legend-dot {
       display: inline-block;
-      width: 10px; height: 10px;
-      border-radius: 2px;
+      width: 14px; height: 14px;
+      border-radius: 3px;
       flex-shrink: 0;
     }
 
@@ -1201,15 +1203,15 @@
 
     // Isometric SVG placeholder
     const isoHtml = `
-      <svg class="iso-svg" width="260" height="180" viewBox="0 0 260 180"
+      <svg class="iso-svg" width="260" height="195" viewBox="0 0 260 195"
         data-a="${r.a}" data-b="${r.b}" data-c="${r.c}"
         data-d1="${r.d1}" data-d2="${r.d2}" data-d3="${r.d3}"
       ></svg>
       <div class="iso-label">${r.a}×${r.b}×${r.c} | ${r.d1}×${r.d2}×${r.d3} מ"מ</div>
       <div class="iso-legend">
-        <span><span class="iso-legend-dot" style="background:#60a5fa"></span>גג</span>
-        <span><span class="iso-legend-dot" style="background:#34d399"></span>חזית</span>
-        <span><span class="iso-legend-dot" style="background:#f87171"></span>צד</span>
+        <span><span class="iso-legend-dot" style="background:#2563eb"></span>${r.d1} מ"מ (×${r.a})</span>
+        <span><span class="iso-legend-dot" style="background:#dc2626"></span>${r.d2} מ"מ (×${r.b})</span>
+        <span><span class="iso-legend-dot" style="background:#059669"></span>${r.d3} מ"מ (×${r.c})</span>
       </div>
     `;
 
@@ -1391,25 +1393,13 @@
     svg += edge(A,  E,  col3.edge);
     svg += edge(B,  F,  col3.edge);
 
-    // ── מקרא קטן בפינה ──
-    const legendItems = [
-      { color: col1.edge, label: `${d1} מ״מ  (×${a})` },
-      { color: col2.edge, label: `${d2} מ״מ  (×${b})` },
-      { color: col3.edge, label: `${d3} מ״מ  (×${c})` },
-    ];
-    let ly = SVG_H - 12 - legendItems.length * 16;
-    svg += `<rect x="4" y="${ly-4}" width="108" height="${legendItems.length*16+8}" fill="white" fill-opacity="0.85" rx="5"/>`;
-    for (const it of legendItems) {
-      svg += `<rect x="10" y="${ly-5}" width="12" height="12" fill="${it.color}" rx="2"/>`;
-      svg += `<text x="26" y="${ly+1}" font-family="Heebo,sans-serif" font-size="10" font-weight="600" fill="#1e293b" dominant-baseline="middle">${it.label}</text>`;
-      ly += 16;
-    }
+    // (no SVG legend — shown as HTML below the SVG)
 
     return svg;
   }
 
   function drawIsometric(svgEl, a, b, c, d1, d2, d3) {
-    const SVG_W = 260, SVG_H = 190;
+    const SVG_W = 260, SVG_H = 195;
     const inner = buildIsoSvg(a, b, c, d1, d2, d3, SVG_W, SVG_H);
     svgEl.innerHTML = inner;
     // לחיצה לפתיחת מסך מלא
