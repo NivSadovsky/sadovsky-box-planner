@@ -17,6 +17,8 @@
       --gold-light:  #fef3c7;
       --green:       #059669;
       --green-light: #d1fae5;
+      --teal:        #0d9488;
+      --teal-light:  #ccfbf1;
       --gray-50:     #f8fafc;
       --gray-100:    #f1f5f9;
       --gray-200:    #e2e8f0;
@@ -132,6 +134,124 @@
       box-shadow: 0 0 0 3px rgba(239,68,68,.12);
     }
 
+    /* ── Pallet toggle ── */
+    .pallet-toggle-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 20px;
+      padding: 12px 14px;
+      background: var(--gray-50);
+      border-radius: 8px;
+      border: 1.5px solid var(--gray-200);
+      cursor: pointer;
+      user-select: none;
+    }
+    .pallet-toggle-row input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--blue-mid);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .pallet-toggle-row label {
+      font-size: .98rem;
+      font-weight: 600;
+      color: var(--blue-dark);
+      cursor: pointer;
+    }
+
+    /* ── Pallet options ── */
+    .pallet-options {
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      transition: max-height .35s ease, opacity .3s ease, margin-top .3s ease;
+      margin-top: 0;
+    }
+    .pallet-options.open {
+      max-height: 500px;
+      opacity: 1;
+      margin-top: 14px;
+    }
+    .pallet-options-inner {
+      background: var(--blue-pale);
+      border: 1.5px solid var(--blue-light);
+      border-radius: 10px;
+      padding: 18px;
+    }
+    .pallet-options-inner h3 {
+      font-size: .88rem;
+      font-weight: 700;
+      color: var(--blue-dark);
+      margin-bottom: 12px;
+      text-align: right;
+    }
+
+    /* Type pills */
+    .pallet-type-pills {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+      justify-content: flex-end;
+    }
+    .pallet-pill {
+      padding: 7px 18px;
+      border-radius: 20px;
+      border: 2px solid var(--blue-mid);
+      background: #fff;
+      color: var(--blue-mid);
+      font-family: 'Heebo', sans-serif;
+      font-size: .9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .18s, color .18s;
+    }
+    .pallet-pill.active, .pallet-pill:hover {
+      background: var(--blue-mid);
+      color: #fff;
+    }
+
+    /* Pallet dimension fields */
+    .pallet-fields {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px 16px;
+      margin-bottom: 14px;
+    }
+    .pallet-fields .field label {
+      font-size: .82rem;
+      text-transform: none;
+      letter-spacing: 0;
+    }
+    .pallet-fields .field input {
+      font-size: .98rem;
+      padding: 9px 12px;
+    }
+
+    .overhang-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .overhang-row input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--blue-mid);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .overhang-row label {
+      font-size: .9rem;
+      font-weight: 500;
+      color: var(--gray-600);
+      cursor: pointer;
+    }
+
+    /* ── Calc button ── */
     .btn-calc {
       margin-top: 20px;
       width: 100%;
@@ -302,6 +422,53 @@
     .card.rank-1 .highlight-row .lbl { color: #78350f; }
     .card.rank-1 .highlight-row .val  { color: #b45309; }
 
+    .highlight-row.green {
+      background: var(--green-light) !important;
+    }
+    .highlight-row.green .lbl { color: #065f46 !important; }
+    .highlight-row.green .val { color: var(--green) !important; }
+
+    .highlight-row.pallet-total {
+      background: #ecfdf5 !important;
+      border: 1.5px solid #6ee7b7;
+    }
+    .highlight-row.pallet-total .lbl { color: #065f46 !important; font-size: 1rem !important; }
+    .highlight-row.pallet-total .val { color: #047857 !important; font-size: 1.2rem !important; }
+
+    /* Pallet stats */
+    .pallet-stats { display: flex; flex-direction: column; gap: 7px; }
+
+    .pallet-no-fit {
+      text-align: center;
+      color: #b91c1c;
+      font-weight: 600;
+      font-size: .9rem;
+      padding: 8px;
+      background: #fef2f2;
+      border-radius: 7px;
+      border: 1px solid #fca5a5;
+    }
+
+    /* Layout button */
+    .btn-layout {
+      width: 100%;
+      margin-top: 10px;
+      padding: 9px 14px;
+      background: #fff;
+      border: 1.5px solid var(--blue-mid);
+      border-radius: 8px;
+      color: var(--blue-mid);
+      font-family: 'Heebo', sans-serif;
+      font-size: .9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .18s, color .18s;
+    }
+    .btn-layout:hover {
+      background: var(--blue-mid);
+      color: #fff;
+    }
+
     /* Best tag */
     .best-tag {
       text-align: center;
@@ -335,9 +502,83 @@
       font-size: .8rem;
     }
 
+    /* ── Layout Modal ── */
+    #layoutModal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.55);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    #layoutModal.open {
+      display: flex;
+    }
+    .modal-box {
+      background: #fff;
+      border-radius: var(--radius);
+      box-shadow: 0 20px 60px rgba(0,0,0,.25);
+      padding: 24px;
+      max-width: 480px;
+      width: calc(100% - 32px);
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+    }
+    .modal-close {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: var(--gray-100);
+      border-radius: 50%;
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--gray-600);
+      transition: background .15s;
+    }
+    .modal-close:hover { background: var(--gray-200); }
+    .modal-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--blue-dark);
+      margin-bottom: 16px;
+      text-align: center;
+    }
+    .modal-svg-wrap {
+      background: var(--gray-50);
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 14px;
+      display: flex;
+      justify-content: center;
+    }
+    .modal-svg-wrap svg {
+      max-width: 100%;
+    }
+    .modal-summary {
+      font-size: .88rem;
+      color: var(--gray-600);
+      text-align: center;
+      line-height: 1.6;
+      background: var(--blue-pale);
+      border-radius: 7px;
+      padding: 10px 14px;
+    }
+    .modal-summary strong {
+      color: var(--blue-dark);
+    }
+
     @media (max-width: 600px) {
       .form-grid { grid-template-columns: 1fr 1fr; }
       .cards-grid { grid-template-columns: 1fr; }
+      .pallet-fields { grid-template-columns: 1fr 1fr; }
     }
   </style>
 </head>
@@ -378,6 +619,41 @@
     </div>
   </div>
 
+  <!-- Pallet toggle -->
+  <div class="pallet-toggle-row" onclick="togglePalletSection()">
+    <input type="checkbox" id="enablePallet" onchange="togglePalletSection()" onclick="event.stopPropagation()" />
+    <label for="enablePallet">חשב לפי משטח</label>
+  </div>
+
+  <!-- Pallet options (hidden by default) -->
+  <div class="pallet-options" id="palletOptions">
+    <div class="pallet-options-inner">
+      <h3>סוג משטח</h3>
+      <div class="pallet-type-pills">
+        <button class="pallet-pill" onclick="setPalletType(1000, 1200, 2000, this)">משטח גדול</button>
+        <button class="pallet-pill" onclick="setPalletType(800, 1200, 1700, this)">משטח יורו</button>
+      </div>
+      <div class="pallet-fields">
+        <div class="field">
+          <label>רוחב משטח <span class="unit">(מ"מ)</span></label>
+          <input type="number" id="palW" min="1" value="1000" />
+        </div>
+        <div class="field">
+          <label>עומק משטח <span class="unit">(מ"מ)</span></label>
+          <input type="number" id="palD" min="1" value="1200" />
+        </div>
+        <div class="field">
+          <label>גובה מקסימלי <span class="unit">(מ"מ)</span></label>
+          <input type="number" id="palH" min="1" value="2000" />
+        </div>
+      </div>
+      <div class="overhang-row">
+        <input type="checkbox" id="noOverhang" />
+        <label for="noOverhang">ללא בליטה מהמשטח</label>
+      </div>
+    </div>
+  </div>
+
   <div class="error-banner" id="errorBanner"></div>
 
   <button class="btn-calc" onclick="calculate()">חשב סידורים</button>
@@ -393,13 +669,25 @@
 
 <footer>כל הזכויות שמורות לניב סדובסקי ©</footer>
 
+<!-- Layout Modal -->
+<div id="layoutModal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeLayout()" title="סגור">×</button>
+    <div class="modal-title">📐 פריסת קרטונים במשטח</div>
+    <div class="modal-svg-wrap">
+      <svg id="layoutSvg" width="400" height="320" viewBox="0 0 400 320"></svg>
+    </div>
+    <div class="modal-summary" id="layoutSummary"></div>
+  </div>
+</div>
+
 <script>
   /* ── Helpers ── */
   const $ = id => document.getElementById(id);
 
   function mm2cm(v)  { return (v / 10).toFixed(1); }
-  function mm2l(v)   { return (v / 1e6).toFixed(1); }    // mm³ → liters
-  function mm2cm3(v) { return (v / 1e3).toFixed(0); }    // mm³ → cm³
+  function mm2l(v)   { return (v / 1e6).toFixed(1); }
+  function mm2cm3(v) { return (v / 1e3).toFixed(0); }
 
   function getFactorTriplets(n) {
     const triplets = [];
@@ -415,7 +703,6 @@
     return triplets;
   }
 
-  // כל 6 האוריינטציות האפשריות של המוצר (סיבובים)
   function getOrientations(L, W, H) {
     return [
       [L, W, H], [L, H, W],
@@ -429,24 +716,136 @@
     return map[rank] || `מקום ${rank}`;
   }
 
+  /* ── Pallet UI ── */
+  function togglePalletSection() {
+    const cb  = $('enablePallet');
+    const sec = $('palletOptions');
+    // If click was on the row (not checkbox), toggle the checkbox
+    if (event && event.target !== cb) {
+      cb.checked = !cb.checked;
+    }
+    sec.classList.toggle('open', cb.checked);
+  }
+
+  function setPalletType(w, d, h, btn) {
+    $('palW').value = w;
+    $('palD').value = d;
+    $('palH').value = h;
+    document.querySelectorAll('.pallet-pill').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+  /* ── Pallet calculation ── */
+  function calcPalletForCarton(outerL, outerW, outerH, palW, palD, palH, noOverhang) {
+    if (outerH > palH) return null;
+
+    const ePalW = noOverhang ? palW : palW + 80;
+    const ePalD = noOverhang ? palD : palD + 80;
+
+    const cL = outerL;
+    const cW = outerW;
+
+    let best = null;
+    let bestCount = -1;
+
+    function tryArrangement(arrangement) {
+      const total = arrangement.zoneA.count + arrangement.zoneB.count;
+      if (total > bestCount) {
+        bestCount = total;
+        best = arrangement;
+      }
+    }
+
+    // Split along pallet WIDTH — zone A has rows of (cL along x), zone B gets the remainder
+    for (let k = 0; k <= Math.floor(ePalW / cL); k++) {
+      const zA_xSpan = k * cL;
+      const zA_cols  = Math.floor(ePalD / cW);
+      const zA_count = k * zA_cols;
+      const zB_rows  = Math.floor((ePalW - zA_xSpan) / cW);
+      const zB_cols  = Math.floor(ePalD / cL);
+      const zB_count = zB_rows * zB_cols;
+      tryArrangement({
+        splitAxis: 'W',
+        zoneA: { x: 0, y: 0, w: zA_xSpan, h: ePalD, cartonW: cL, cartonH: cW, rows: k, cols: zA_cols, count: zA_count },
+        zoneB: { x: zA_xSpan, y: 0, w: ePalW - zA_xSpan, h: ePalD, cartonW: cW, cartonH: cL, rows: zB_rows, cols: zB_cols, count: zB_count },
+        effectivePalW: ePalW, effectivePalD: ePalD
+      });
+    }
+
+    // Split along pallet WIDTH — zone B first (swap orientations)
+    for (let k = 0; k <= Math.floor(ePalW / cW); k++) {
+      const zA_xSpan = k * cW;
+      const zA_cols  = Math.floor(ePalD / cL);
+      const zA_count = k * zA_cols;
+      const zB_rows  = Math.floor((ePalW - zA_xSpan) / cL);
+      const zB_cols  = Math.floor(ePalD / cW);
+      const zB_count = zB_rows * zB_cols;
+      tryArrangement({
+        splitAxis: 'W2',
+        zoneA: { x: 0, y: 0, w: zA_xSpan, h: ePalD, cartonW: cW, cartonH: cL, rows: k, cols: zA_cols, count: zA_count },
+        zoneB: { x: zA_xSpan, y: 0, w: ePalW - zA_xSpan, h: ePalD, cartonW: cL, cartonH: cW, rows: zB_rows, cols: zB_cols, count: zB_count },
+        effectivePalW: ePalW, effectivePalD: ePalD
+      });
+    }
+
+    // Split along pallet DEPTH
+    for (let k = 0; k <= Math.floor(ePalD / cW); k++) {
+      const zA_ySpan = k * cW;
+      const zA_rows  = Math.floor(ePalW / cL);
+      const zA_count = zA_rows * k;
+      const zB_colsY = Math.floor((ePalD - zA_ySpan) / cL);
+      const zB_rows  = Math.floor(ePalW / cW);
+      const zB_count = zB_rows * zB_colsY;
+      tryArrangement({
+        splitAxis: 'D',
+        zoneA: { x: 0, y: 0, w: ePalW, h: zA_ySpan, cartonW: cL, cartonH: cW, rows: zA_rows, cols: k, count: zA_count },
+        zoneB: { x: 0, y: zA_ySpan, w: ePalW, h: ePalD - zA_ySpan, cartonW: cW, cartonH: cL, rows: zB_rows, cols: zB_colsY, count: zB_count },
+        effectivePalW: ePalW, effectivePalD: ePalD
+      });
+    }
+
+    // Split along pallet DEPTH — swapped orientations
+    for (let k = 0; k <= Math.floor(ePalD / cL); k++) {
+      const zA_ySpan = k * cL;
+      const zA_rows  = Math.floor(ePalW / cW);
+      const zA_count = zA_rows * k;
+      const zB_colsY = Math.floor((ePalD - zA_ySpan) / cW);
+      const zB_rows  = Math.floor(ePalW / cL);
+      const zB_count = zB_rows * zB_colsY;
+      tryArrangement({
+        splitAxis: 'D2',
+        zoneA: { x: 0, y: 0, w: ePalW, h: zA_ySpan, cartonW: cW, cartonH: cL, rows: zA_rows, cols: k, count: zA_count },
+        zoneB: { x: 0, y: zA_ySpan, w: ePalW, h: ePalD - zA_ySpan, cartonW: cL, cartonH: cW, rows: zB_rows, cols: zB_colsY, count: zB_count },
+        effectivePalW: ePalW, effectivePalD: ePalD
+      });
+    }
+
+    const perLayer = bestCount >= 0 ? bestCount : 0;
+    const layers   = Math.floor(palH / outerH);
+    const total    = perLayer * layers;
+
+    return { perLayer, layers, total, arrangement: best, palW, palD, palH, noOverhang, ePalW, ePalD };
+  }
+
   /* ── Main calculation ── */
   function calculate() {
-    // clear errors
-    ['prodL','prodW','prodH','qty','thickness'].forEach(id => $('field_'+id) && ($('field_'+id).classList.remove('error')));
+    ['prodL','prodW','prodH','qty','thickness'].forEach(id => {
+      const el = $(id);
+      if (el) el.classList.remove('error');
+    });
     $('errorBanner').classList.remove('visible');
     $('errorBanner').textContent = '';
 
     const inputs = ['prodL','prodW','prodH','qty','thickness'];
-    const vals = {};
+    const vals   = {};
     const errors = [];
 
-    // unitWeight is optional
     const uwEl = $('unitWeight');
     const unitWeightVal = uwEl && uwEl.value.trim() ? parseFloat(uwEl.value) : null;
 
     inputs.forEach(id => {
       const el = $(id);
-      const v = parseFloat(el.value);
+      const v  = parseFloat(el.value);
       if (!el.value.trim() || isNaN(v) || v <= 0) {
         errors.push(labelOf(id));
         el.classList.add('error');
@@ -456,18 +855,31 @@
       }
     });
 
-    if (!Number.isInteger(vals.qty) && vals.qty) {
+    if (vals.qty && !Number.isInteger(vals.qty)) {
       errors.push('כמות המוצרים חייבת להיות מספר שלם');
       $('qty').classList.add('error');
     }
 
-    if (errors.length) {
-      $('errorBanner').textContent = 'שגיאה: יש למלא את השדות הבאים בצורה תקינה: ' + errors.filter(e => e.length > 0 && !e.includes('חייבת')).join(', ') +
-        (errors.some(e => e.includes('שלם')) ? ' · כמות המוצרים חייבת להיות מספר שלם' : '');
-      // fallback
-      if ($('errorBanner').textContent.trim() === 'שגיאה: יש למלא את השדות הבאים בצורה תקינה: ') {
-        $('errorBanner').textContent = errors.join(' · ');
+    // Pallet params
+    const palletEnabled = $('enablePallet').checked;
+    let palW, palD, palH, noOverhang;
+    if (palletEnabled) {
+      palW       = parseFloat($('palW').value);
+      palD       = parseFloat($('palD').value);
+      palH       = parseFloat($('palH').value);
+      noOverhang = $('noOverhang').checked;
+      if (isNaN(palW) || palW <= 0 || isNaN(palD) || palD <= 0 || isNaN(palH) || palH <= 0) {
+        errors.push('מידות משטח');
       }
+    }
+
+    if (errors.length) {
+      const fieldErrors = errors.filter(e => !e.includes('חייבת'));
+      const otherErrors = errors.filter(e => e.includes('חייבת'));
+      let msg = '';
+      if (fieldErrors.length) msg += 'שגיאה: יש למלא את השדות הבאים בצורה תקינה: ' + fieldErrors.join(', ');
+      if (otherErrors.length) msg += (msg ? ' · ' : '') + otherErrors.join(' · ');
+      $('errorBanner').textContent = msg || errors.join(' · ');
       $('errorBanner').classList.add('visible');
       $('resultsSection').style.display = 'none';
       return;
@@ -478,7 +890,7 @@
 
     const triplets     = getFactorTriplets(qtyInt);
     const orientations = getOrientations(prodL, prodW, prodH);
-    const CARDBOARD_GSM = 550; // g/m²
+    const CARDBOARD_GSM = 550;
 
     const seen    = new Set();
     const results = [];
@@ -487,9 +899,8 @@
       for (const [a, b, c] of triplets) {
         const outerL = a * d1 + 2 * t;
         const outerW = b * d2 + 2 * t;
-        const outerH = c * d3 + 4 * t;  // double wall top + bottom
+        const outerH = c * d3 + 4 * t;
 
-        // L ו-W הן סימטריות (שניהם דופן יחידה) — נסיר כפילויות לפי מפתח מינימום/מקסימום
         const key = `${Math.min(outerL,outerW)}_${Math.max(outerL,outerW)}_${outerH}`;
         if (seen.has(key)) continue;
         seen.add(key);
@@ -501,17 +912,31 @@
         const cartonWeightG = areaM2 * CARDBOARD_GSM;
         const grossWeightG  = netWeightG !== null ? netWeightG + cartonWeightG : null;
 
-        results.push({ a, b, c, d1, d2, d3, outerL, outerW, outerH, volL, areaM2, netWeightG, cartonWeightG, grossWeightG });
+        const result = { a, b, c, d1, d2, d3, outerL, outerW, outerH, volL, areaM2, netWeightG, cartonWeightG, grossWeightG };
+
+        if (palletEnabled) {
+          result.pallet = calcPalletForCarton(outerL, outerW, outerH, palW, palD, palH, noOverhang);
+        }
+
+        results.push(result);
       }
     }
 
-    // מיון: נפח עולה, אחר כך שטח עולה
-    results.sort((x, y) => {
-      const dv = x.volL - y.volL;
-      return dv !== 0 ? dv : x.areaM2 - y.areaM2;
-    });
+    if (palletEnabled) {
+      results.sort((x, y) => {
+        const px = x.pallet ? x.pallet.total : -1;
+        const py = y.pallet ? y.pallet.total : -1;
+        if (py !== px) return py - px;
+        return x.volL - y.volL;
+      });
+    } else {
+      results.sort((x, y) => {
+        const dv = x.volL - y.volL;
+        return dv !== 0 ? dv : x.areaM2 - y.areaM2;
+      });
+    }
 
-    renderCards(results, prodL, prodW, prodH, t, qtyInt, unitWeightVal);
+    renderCards(results, palletEnabled, unitWeightVal);
   }
 
   function fmtWeight(grams) {
@@ -526,7 +951,7 @@
   }
 
   /* ── Render ── */
-  function renderCards(results, prodL, prodW, prodH, t, qty, unitWeightVal) {
+  function renderCards(results, palletEnabled, unitWeightVal) {
     const grid = $('cardsGrid');
     grid.innerHTML = '';
 
@@ -539,12 +964,44 @@
     }
 
     results.forEach((r, idx) => {
-      const rank = idx + 1;
+      const rank      = idx + 1;
       const rankClass = rank <= 3 ? `rank-${rank}` : '';
 
       const innerL = r.a * r.d1;
       const innerW = r.b * r.d2;
       const innerH = r.c * r.d3;
+
+      /* Pallet HTML block */
+      let palletHtml = '';
+      if (palletEnabled) {
+        const p = r.pallet;
+        if (!p || p.total === 0) {
+          palletHtml = `
+            <hr class="card-divider" />
+            <div class="pallet-no-fit">הקרטון לא מתאים למשטח</div>
+          `;
+        } else {
+          const arrangementData = encodeURIComponent(JSON.stringify(p.arrangement));
+          palletHtml = `
+            <hr class="card-divider" />
+            <div class="pallet-stats">
+              <div class="data-row">
+                <span class="lbl">קרטונים בשכבה</span>
+                <span class="val">${p.perLayer}</span>
+              </div>
+              <div class="data-row">
+                <span class="lbl">מספר שכבות</span>
+                <span class="val">${p.layers}</span>
+              </div>
+              <div class="highlight-row pallet-total" style="margin-top:4px;">
+                <span class="lbl">סך קרטונים במשטח</span>
+                <span class="val">${p.total}</span>
+              </div>
+              <button class="btn-layout" onclick="showLayout('${arrangementData}', ${r.outerL}, ${r.outerW}, ${r.outerH}, ${p.layers}, ${p.total}, ${p.perLayer}, ${p.palW}, ${p.palD}, ${p.noOverhang ? 1 : 0})">📐 הצג פריסה</button>
+            </div>
+          `;
+        }
+      }
 
       const card = document.createElement('div');
       card.className = `card ${rankClass}`;
@@ -607,11 +1064,13 @@
             <span class="val">${fmtWeight(r.netWeightG)}</span>
           </div>
         </div>
-        <div class="highlight-row" style="margin-top:8px; background: var(--green-light);">
-          <span class="lbl" style="color:#065f46;">משקל ברוטו</span>
-          <span class="val" style="color:var(--green);">${fmtWeight(r.grossWeightG)}</span>
+        <div class="highlight-row green" style="margin-top:8px;">
+          <span class="lbl">משקל ברוטו</span>
+          <span class="val">${fmtWeight(r.grossWeightG)}</span>
         </div>
         ` : ''}
+
+        ${palletHtml}
 
         ${rank === 1 ? '<div class="best-tag"><span>✔ הסידור הטוב ביותר</span></div>' : ''}
       `;
@@ -619,6 +1078,107 @@
       grid.appendChild(card);
     });
   }
+
+  /* ── Layout Modal ── */
+  function showLayout(arrangementJson, outerL, outerW, outerH, layers, total, perLayer, palW, palD, noOverhangInt) {
+    const arrangement = JSON.parse(decodeURIComponent(arrangementJson));
+    const noOverhang  = noOverhangInt === 1;
+    const ePalW = arrangement.effectivePalW;
+    const ePalD = arrangement.effectivePalD;
+
+    const SVG_W = 400, SVG_H = 320;
+    const PAD   = 30;
+    const drawW = SVG_W - PAD * 2;
+    const drawH = SVG_H - PAD * 2;
+
+    const scale = Math.min(drawW / ePalW, drawH / ePalD);
+    const pxW   = ePalW * scale;
+    const pxD   = ePalD * scale;
+    const offX  = PAD + (drawW - pxW) / 2;
+    const offY  = PAD + (drawH - pxD) / 2;
+
+    function toSvgX(mm) { return offX + mm * scale; }
+    function toSvgY(mm) { return offY + mm * scale; }
+
+    let svg = '';
+
+    // Pallet background
+    svg += `<rect x="${offX}" y="${offY}" width="${pxW}" height="${pxD}" fill="#e5e7eb" stroke="#9ca3af" stroke-width="1.5" rx="3"/>`;
+
+    // Dashed inner line if overhang allowed (actual pallet inside effective footprint)
+    if (!noOverhang) {
+      const innerOffX = toSvgX(40);
+      const innerOffY = toSvgY(40);
+      const innerW    = palW * scale;
+      const innerH    = palD * scale;
+      svg += `<rect x="${innerOffX}" y="${innerOffY}" width="${innerW}" height="${innerH}" fill="none" stroke="#6b7280" stroke-width="1" stroke-dasharray="5,4" rx="2"/>`;
+    }
+
+    // Zone A cartons (blue)
+    const zA = arrangement.zoneA;
+    if (zA && zA.rows > 0 && zA.cols > 0) {
+      const cW = zA.cartonW * scale;
+      const cH = zA.cartonH * scale;
+      for (let row = 0; row < zA.rows; row++) {
+        for (let col = 0; col < zA.cols; col++) {
+          const cx = toSvgX(zA.x + row * zA.cartonW);
+          const cy = toSvgY(zA.y + col * zA.cartonH);
+          svg += `<rect x="${cx}" y="${cy}" width="${cW}" height="${cH}" fill="#3b82f6" stroke="#fff" stroke-width="1" rx="1"/>`;
+        }
+      }
+      // Zone label
+      if (zA.count > 0) {
+        const lx = toSvgX(zA.x + zA.w / 2);
+        const ly = toSvgY(zA.y + zA.h / 2);
+        svg += `<text x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-family="Heebo,sans-serif" font-size="13" font-weight="700">${zA.count}</text>`;
+      }
+    }
+
+    // Zone B cartons (teal)
+    const zB = arrangement.zoneB;
+    if (zB && zB.rows > 0 && zB.cols > 0) {
+      const cW = zB.cartonW * scale;
+      const cH = zB.cartonH * scale;
+      for (let row = 0; row < zB.rows; row++) {
+        for (let col = 0; col < zB.cols; col++) {
+          const cx = toSvgX(zB.x + row * zB.cartonW);
+          const cy = toSvgY(zB.y + col * zB.cartonH);
+          svg += `<rect x="${cx}" y="${cy}" width="${cW}" height="${cH}" fill="#0d9488" stroke="#fff" stroke-width="1" rx="1"/>`;
+        }
+      }
+      if (zB.count > 0) {
+        const lx = toSvgX(zB.x + zB.w / 2);
+        const ly = toSvgY(zB.y + zB.h / 2);
+        svg += `<text x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-family="Heebo,sans-serif" font-size="13" font-weight="700">${zB.count}</text>`;
+      }
+    }
+
+    // Dimension labels
+    svg += `<text x="${offX + pxW / 2}" y="${offY + pxD + 18}" text-anchor="middle" fill="#374151" font-family="Heebo,sans-serif" font-size="11">${ePalW} מ"מ</text>`;
+    svg += `<text x="${offX - 14}" y="${offY + pxD / 2}" text-anchor="middle" fill="#374151" font-family="Heebo,sans-serif" font-size="11" transform="rotate(-90, ${offX - 14}, ${offY + pxD / 2})">${ePalD} מ"מ</text>`;
+
+    $('layoutSvg').innerHTML = svg;
+
+    // Summary text
+    const zA2 = arrangement.zoneA;
+    const zB2 = arrangement.zoneB;
+    const zoneAStr = (zA2 && zA2.count > 0) ? `${zA2.rows}×${zA2.cols}` : null;
+    const zoneBStr = (zB2 && zB2.count > 0) ? `${zB2.rows}×${zB2.cols}` : null;
+    let layerDesc = [zoneAStr, zoneBStr].filter(Boolean).join(' + ');
+    $('layoutSummary').innerHTML =
+      `<strong>שכבה:</strong> ${layerDesc || '—'} | <strong>${perLayer} קרטונים בשכבה</strong> × ${layers} שכבות = <strong>${total} קרטונים</strong>`;
+
+    $('layoutModal').classList.add('open');
+  }
+
+  function closeLayout() {
+    $('layoutModal').classList.remove('open');
+  }
+
+  // Close modal on overlay click
+  $('layoutModal').addEventListener('click', function(e) {
+    if (e.target === this) closeLayout();
+  });
 
   /* Allow Enter key to trigger calculation */
   document.addEventListener('keydown', e => {
