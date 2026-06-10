@@ -1371,7 +1371,11 @@
       return pts.map(p => p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ');
     }
 
-    let svgContent = '';
+    // רקע בהיר לקנבס
+    let svgContent = `<rect width="${SVG_W}" height="${SVG_H}" fill="#f1f5f9" rx="8"/>`;
+
+    const STROKE = '#1e293b';
+    const SW = 1.5;
 
     // Draw order: bottom layers first, back to front
     for (let zi = 0; zi < c; zi++) {
@@ -1380,9 +1384,16 @@
           const [ox, oy] = isoOrigin(xi, yi, zi);
           const { top, right, left } = boxFaces(ox, oy);
 
-          svgContent += `<polygon points="${pts2poly(top)}"   fill="#60a5fa" stroke="white" stroke-width="0.8"/>`;
-          svgContent += `<polygon points="${pts2poly(right)}" fill="#34d399" stroke="white" stroke-width="0.8"/>`;
-          svgContent += `<polygon points="${pts2poly(left)}"  fill="#f87171" stroke="white" stroke-width="0.8"/>`;
+          // גוון קל שונה כל תיבה שנייה — יוצר תחושת עומק
+          const alt = (xi + yi + zi) % 2;
+
+          const topColor   = alt ? '#93c5fd' : '#bfdbfe';  // כחול — גג
+          const rightColor = alt ? '#34d399' : '#6ee7b7';  // ירוק — חזית
+          const leftColor  = alt ? '#f87171' : '#fca5a5';  // אדום — צד
+
+          svgContent += `<polygon points="${pts2poly(top)}"   fill="${topColor}"   stroke="${STROKE}" stroke-width="${SW}" stroke-linejoin="round"/>`;
+          svgContent += `<polygon points="${pts2poly(right)}" fill="${rightColor}" stroke="${STROKE}" stroke-width="${SW}" stroke-linejoin="round"/>`;
+          svgContent += `<polygon points="${pts2poly(left)}"  fill="${leftColor}"  stroke="${STROKE}" stroke-width="${SW}" stroke-linejoin="round"/>`;
         }
       }
     }
