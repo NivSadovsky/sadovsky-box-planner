@@ -676,9 +676,135 @@
       .cards-grid { grid-template-columns: 1fr; }
       .pallet-fields { grid-template-columns: 1fr 1fr; }
     }
+
+    /* ── PDF Button ── */
+    .pdf-btn {
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      width: 100%; margin-top: 14px;
+      padding: 10px 0;
+      background: #1e3a5f; color: white;
+      border: none; border-radius: 10px;
+      font-family: 'Heebo', sans-serif; font-size: .9rem; font-weight: 700;
+      cursor: pointer; transition: background .2s;
+    }
+    .pdf-btn:hover { background: #16304f; }
+
+    /* ── PDF Modal ── */
+    .pdf-modal-overlay {
+      display: none; position: fixed; inset: 0; z-index: 2000;
+      background: rgba(0,0,0,.55); align-items: center; justify-content: center;
+    }
+    .pdf-modal-overlay.open { display: flex; }
+    .pdf-modal {
+      background: white; border-radius: 16px; padding: 32px 28px;
+      width: min(420px, 92vw); box-shadow: 0 20px 60px rgba(0,0,0,.3);
+      direction: rtl; text-align: right;
+    }
+    .pdf-modal h3 { margin: 0 0 6px; font-size: 1.2rem; color: #1e3a5f; }
+    .pdf-modal p  { margin: 0 0 20px; font-size: .85rem; color: #64748b; }
+    .pdf-modal .field { margin-bottom: 14px; }
+    .pdf-modal label { display: block; font-size: .85rem; font-weight: 600; color: #374151; margin-bottom: 5px; }
+    .pdf-modal input {
+      width: 100%; box-sizing: border-box;
+      padding: 10px 12px; border: 1.5px solid #e2e8f0; border-radius: 8px;
+      font-family: 'Heebo',sans-serif; font-size: .95rem; color: #1e293b;
+    }
+    .pdf-modal input:focus { outline: none; border-color: #2563eb; }
+    .pdf-modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+    .pdf-modal-actions button {
+      flex: 1; padding: 11px; border-radius: 10px; border: none;
+      font-family: 'Heebo',sans-serif; font-size: .95rem; font-weight: 700; cursor: pointer;
+    }
+    .btn-pdf-confirm { background: #1e3a5f; color: white; }
+    .btn-pdf-confirm:hover { background: #16304f; }
+    .btn-pdf-cancel  { background: #f1f5f9; color: #374151; }
+    .btn-pdf-cancel:hover { background: #e2e8f0; }
+
+    /* ── Print Area ── */
+    #print-area { display: none; }
+
+    @media print {
+      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+      body > *:not(#print-area) { display: none !important; }
+      #print-area {
+        display: block !important;
+        direction: rtl; font-family: 'Heebo', sans-serif;
+        color: #1e293b; padding: 0; margin: 0;
+      }
+      .print-header {
+        background: #1e3a5f; color: white;
+        padding: 18px 24px; border-radius: 0;
+        display: flex; align-items: center; justify-content: space-between;
+        margin-bottom: 20px;
+      }
+      .print-header h1 { margin: 0; font-size: 1.3rem; }
+      .print-header .print-date { font-size: .8rem; opacity: .8; }
+      .print-product-info {
+        background: #f0f6ff; border: 1.5px solid #bfdbfe;
+        border-radius: 10px; padding: 14px 18px; margin-bottom: 18px;
+      }
+      .print-product-info h2 { margin: 0 0 4px; font-size: 1.1rem; color: #1e3a5f; }
+      .print-product-info .sku { font-size: .85rem; color: #64748b; }
+      .print-section { margin-bottom: 18px; }
+      .print-section h3 {
+        font-size: .95rem; color: #1e3a5f; margin: 0 0 10px;
+        border-bottom: 2px solid #e2e8f0; padding-bottom: 5px;
+      }
+      .print-row {
+        display: flex; justify-content: space-between;
+        padding: 5px 0; font-size: .88rem; border-bottom: 1px solid #f1f5f9;
+      }
+      .print-row .lbl { color: #64748b; }
+      .print-row .val { font-weight: 700; color: #1e293b; }
+      .print-highlight {
+        background: #f0fdf4; border: 1.5px solid #86efac;
+        border-radius: 8px; padding: 10px 14px;
+        display: flex; justify-content: space-between; margin-top: 8px;
+      }
+      .print-highlight .lbl { color: #15803d; font-weight: 600; }
+      .print-highlight .val { font-weight: 800; color: #15803d; font-size: 1.05rem; }
+      .print-cols { display: flex; gap: 20px; }
+      .print-cols > div { flex: 1; }
+      .print-iso svg { width: 100%; max-height: 200px; }
+      .print-legend {
+        display: flex; gap: 14px; flex-wrap: wrap;
+        margin-top: 8px; font-size: .82rem; font-weight: 600;
+      }
+      .print-legend span { display: flex; align-items: center; gap: 5px; }
+      .print-legend-dot {
+        display: inline-block; width: 13px; height: 13px; border-radius: 3px;
+      }
+      .print-footer {
+        margin-top: 24px; font-size: .75rem; color: #94a3b8;
+        text-align: center; border-top: 1px solid #e2e8f0; padding-top: 10px;
+      }
+    }
   </style>
 </head>
 <body>
+
+<!-- PDF Modal -->
+<div class="pdf-modal-overlay" id="pdfModalOverlay">
+  <div class="pdf-modal">
+    <h3>📄 שמירת PDF</h3>
+    <p>מלא את פרטי המוצר כדי לצרף לדוח</p>
+    <div class="field">
+      <label>שם מוצר</label>
+      <input type="text" id="pdfProductName" placeholder="לדוגמה: בקבוק שמן זית 500 מ״ל" />
+    </div>
+    <div class="field">
+      <label>מק"ט</label>
+      <input type="text" id="pdfSku" placeholder="לדוגמה: OIL-500-GR" />
+    </div>
+    <div class="pdf-modal-actions">
+      <button class="btn-pdf-confirm" onclick="confirmPdf()">הפק PDF 🖨️</button>
+      <button class="btn-pdf-cancel" onclick="closePdfModal()">ביטול</button>
+    </div>
+  </div>
+</div>
+
+<!-- Hidden print area -->
+<div id="print-area"></div>
 
 <header>
   <h1>📦 סדובסקי בע״מ - מתכנן קרטונים</h1>
@@ -1279,7 +1405,12 @@
       ${miniSvgHtml}
 
       ${rank === 1 ? '<div class="best-tag"><span>✔ הסידור הטוב ביותר</span></div>' : ''}
+
+      <button class="pdf-btn" onclick="openPdfModal(this)">📄 שמור PDF</button>
     `;
+
+    // Store result data on card element for PDF export
+    card._pdfData = { r, rank, palletEnabled, unitWeightVal, innerL, innerW, innerH };
 
     // Draw isometric after element created
     const isoSvg = card.querySelector('.iso-svg');
@@ -1610,6 +1741,132 @@
   document.addEventListener('keydown', e => {
     if (e.key === 'Enter') calculate();
   });
+
+  /* ── PDF Export ── */
+  let _pdfTargetCard = null;
+
+  function openPdfModal(btn) {
+    _pdfTargetCard = btn.closest('.card');
+    $('pdfProductName').value = '';
+    $('pdfSku').value = '';
+    $('pdfModalOverlay').classList.add('open');
+    setTimeout(() => $('pdfProductName').focus(), 80);
+  }
+
+  function closePdfModal() {
+    $('pdfModalOverlay').classList.remove('open');
+    _pdfTargetCard = null;
+  }
+
+  $('pdfModalOverlay').addEventListener('click', function(e) {
+    if (e.target === this) closePdfModal();
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closePdfModal();
+  });
+
+  function confirmPdf() {
+    if (!_pdfTargetCard) return;
+    const productName = $('pdfProductName').value.trim();
+    const sku = $('pdfSku').value.trim();
+    closePdfModal();
+    buildAndPrintPdf(_pdfTargetCard, productName, sku);
+  }
+
+  function buildAndPrintPdf(card, productName, sku) {
+    const { r, rank, palletEnabled, unitWeightVal, innerL, innerW, innerH } = card._pdfData;
+
+    const today = new Date().toLocaleDateString('he-IL', { year:'numeric', month:'long', day:'numeric' });
+
+    // Build isometric SVG for print (larger)
+    const isoSvgStr = buildIsoSvg(r.a, r.b, r.c, r.d1, r.d2, r.d3, 320, 240);
+    const col1 = ISO_COLORS.d1, col2 = ISO_COLORS.d2, col3 = ISO_COLORS.d3;
+
+    // Pallet section
+    let palletHtml = '';
+    if (palletEnabled) {
+      const p = r.pallet;
+      if (!p || p.total === 0) {
+        palletHtml = `<div class="print-section"><h3>🏗️ תכנון משטח</h3><p style="color:#ef4444;font-weight:600;">הקרטון לא מתאים למשטח</p></div>`;
+      } else {
+        const zonesHtml = (p.zones || []).map(z =>
+          `<div class="print-row"><span class="lbl">אזור ${z.zoneLabel}: ${z.nx}×${z.ny} קרטונים</span><span class="val">${z.count} יח'</span></div>`
+        ).join('');
+        palletHtml = `
+        <div class="print-section">
+          <h3>🏗️ תכנון משטח</h3>
+          <div class="print-highlight" style="background:#fefce8;border-color:#fde68a;">
+            <span class="lbl" style="color:#92400e;">סה"כ קרטונים במשטח</span>
+            <span class="val" style="color:#92400e;">${p.total}</span>
+          </div>
+          ${p.layers ? `<div class="print-row" style="margin-top:8px;"><span class="lbl">מספר שכבות</span><span class="val">${p.layers}</span></div>` : ''}
+          ${p.perLayer ? `<div class="print-row"><span class="lbl">קרטונים בשכבה</span><span class="val">${p.perLayer}</span></div>` : ''}
+          ${p.usedW ? `<div class="print-row"><span class="lbl">שטח בשימוש</span><span class="val">${p.usedW} × ${p.usedD} מ"מ</span></div>` : ''}
+          ${zonesHtml}
+        </div>`;
+      }
+    }
+
+    // Weight section
+    let weightHtml = '';
+    if (unitWeightVal !== null) {
+      weightHtml = `
+        <div class="print-section">
+          <h3>⚖️ משקלים</h3>
+          <div class="print-row"><span class="lbl">משקל קרטון ריק</span><span class="val">${fmtWeight(r.cartonWeightG)}</span></div>
+          <div class="print-row"><span class="lbl">משקל נטו (מוצרים)</span><span class="val">${fmtWeight(r.netWeightG)}</span></div>
+          <div class="print-highlight">
+            <span class="lbl">משקל ברוטו</span>
+            <span class="val">${fmtWeight(r.grossWeightG)}</span>
+          </div>
+        </div>`;
+    }
+
+    $('print-area').innerHTML = `
+      <div class="print-header">
+        <h1>📦 סדובסקי בע״מ – מתכנן קרטונים</h1>
+        <span class="print-date">${today}</span>
+      </div>
+
+      <div class="print-product-info">
+        <h2>${productName || 'ללא שם מוצר'}</h2>
+        ${sku ? `<div class="sku">מק"ט: <strong>${sku}</strong></div>` : ''}
+        <div class="sku" style="margin-top:4px;">מידות מוצר: ${r.d1} × ${r.d2} × ${r.d3} מ"מ</div>
+      </div>
+
+      <div class="print-cols">
+        <div>
+          <div class="print-section">
+            <h3>📐 סידור בקרטון — ${r.a} × ${r.b} × ${r.c} מוצרים</h3>
+            <div class="print-row"><span class="lbl">מרחב פנימי (מ"מ)</span><span class="val">${innerL} × ${innerW} × ${innerH}</span></div>
+            <div class="print-row"><span class="lbl">מרחב פנימי (ס"מ)</span><span class="val">${mm2cm(innerL)} × ${mm2cm(innerW)} × ${mm2cm(innerH)}</span></div>
+            <div class="print-row"><span class="lbl">מידות חיצוניות (מ"מ)</span><span class="val">${r.outerL} × ${r.outerW} × ${r.outerH}</span></div>
+            <div class="print-row"><span class="lbl">מידות חיצוניות (ס"מ)</span><span class="val">${mm2cm(r.outerL)} × ${mm2cm(r.outerW)} × ${mm2cm(r.outerH)}</span></div>
+          </div>
+          ${weightHtml}
+          ${palletHtml}
+        </div>
+        <div>
+          <div class="print-section">
+            <h3>🗂️ ציור תלת-ממדי</h3>
+            <div class="print-iso">
+              <svg width="320" height="240" viewBox="0 0 320 240">${isoSvgStr}</svg>
+            </div>
+            <div class="print-legend">
+              <span><span class="print-legend-dot" style="background:${col1.edge}"></span>${r.d1} מ"מ (×${r.a})</span>
+              <span><span class="print-legend-dot" style="background:${col2.edge}"></span>${r.d2} מ"מ (×${r.b})</span>
+              <span><span class="print-legend-dot" style="background:${col3.edge}"></span>${r.d3} מ"מ (×${r.c})</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="print-footer">כל הזכויות שמורות לניב סדובסקי © | סדובסקי בע״מ – מתכנן קרטונים</div>
+    `;
+
+    setTimeout(() => window.print(), 100);
+  }
 </script>
 
 </body>
