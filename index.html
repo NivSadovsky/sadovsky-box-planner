@@ -635,6 +635,22 @@
       direction: ltr;
     }
 
+    .iso-legend {
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      font-size: .72rem;
+      color: var(--gray-600);
+      margin-bottom: 8px;
+    }
+    .iso-legend span { display: flex; align-items: center; gap: 4px; }
+    .iso-legend-dot {
+      display: inline-block;
+      width: 10px; height: 10px;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
     /* ── Pallet mini SVG ── */
     .pallet-mini-label {
       font-size: .78rem;
@@ -1190,6 +1206,11 @@
         data-d1="${r.d1}" data-d2="${r.d2}" data-d3="${r.d3}"
       ></svg>
       <div class="iso-label">${r.a}×${r.b}×${r.c} | ${r.d1}×${r.d2}×${r.d3} מ"מ</div>
+      <div class="iso-legend">
+        <span><span class="iso-legend-dot" style="background:#60a5fa"></span>גג</span>
+        <span><span class="iso-legend-dot" style="background:#34d399"></span>חזית</span>
+        <span><span class="iso-legend-dot" style="background:#f87171"></span>צד</span>
+      </div>
     `;
 
     const card = document.createElement('div');
@@ -1359,9 +1380,9 @@
           const [ox, oy] = isoOrigin(xi, yi, zi);
           const { top, right, left } = boxFaces(ox, oy);
 
-          svgContent += `<polygon points="${pts2poly(top)}"   fill="#93c5fd" stroke="white" stroke-width="0.5"/>`;
-          svgContent += `<polygon points="${pts2poly(right)}" fill="#3b82f6" stroke="white" stroke-width="0.5"/>`;
-          svgContent += `<polygon points="${pts2poly(left)}"  fill="#1d4ed8" stroke="white" stroke-width="0.5"/>`;
+          svgContent += `<polygon points="${pts2poly(top)}"   fill="#60a5fa" stroke="white" stroke-width="0.8"/>`;
+          svgContent += `<polygon points="${pts2poly(right)}" fill="#34d399" stroke="white" stroke-width="0.8"/>`;
+          svgContent += `<polygon points="${pts2poly(left)}"  fill="#f87171" stroke="white" stroke-width="0.8"/>`;
         }
       }
     }
