@@ -705,7 +705,7 @@
     </div>
     <div class="field">
       <label>עובי קרטון <span class="unit">(מ"מ)</span></label>
-      <input type="number" id="thickness" placeholder="6" min="1" value="6" />
+      <input type="number" id="thickness" placeholder="3" min="1" value="3" />
     </div>
     <div class="field">
       <label>משקל מוצר <span class="unit">(גרם)</span></label>
@@ -1375,14 +1375,22 @@
       svg += ln([C_[0] + t*D*lX, C_[1] + t*D*lY], [E[0] + t*D*lX, E[1] + t*D*lY]);
     }
 
-    // מספרים על הצדדים
+    // תוויות על קצוות הקופסא — n×מ"מ
     const mid = (p1, p2) => [(p1[0]+p2[0])/2, (p1[1]+p2[1])/2];
-    const txt = (pos, label) =>
-      `<text x="${pos[0].toFixed(1)}" y="${pos[1].toFixed(1)}" text-anchor="middle" dominant-baseline="middle" font-family="Heebo,sans-serif" font-size="10" font-weight="700" fill="#1e293b" opacity="0.7">${label}</text>`;
 
-    svg += txt(mid(mid(O,A), mid(C_,E)), `${b}×${c}`);   // צד ימין: b רוחב, c גובה
-    svg += txt(mid(mid(O,B), mid(C_,F)), `${a}×${c}`);   // צד שמאל: a עומק, c גובה
-    svg += txt(mid(mid(C_,E), mid(F,G)), `${b}×${a}`);   // גג: b×a
+    // פונקציה לתווית על קצה עם הזזה קלה מחוץ לקצה
+    const edgeTxt = (p1, p2, label, offsetX, offsetY) => {
+      const mx = (p1[0]+p2[0])/2 + offsetX;
+      const my = (p1[1]+p2[1])/2 + offsetY;
+      return `<text x="${mx.toFixed(1)}" y="${my.toFixed(1)}" text-anchor="middle" dominant-baseline="middle" font-family="Heebo,sans-serif" font-size="10" font-weight="700" fill="#1e293b">${label}</text>`;
+    };
+
+    // קצה תחתון-ימני (O→A): b יחידות × d2 מ"מ
+    svg += edgeTxt(O, A, `${b}×${d2}`,  4,  10);
+    // קצה תחתון-שמאלי (O→B): a יחידות × d1 מ"מ
+    svg += edgeTxt(O, B, `${a}×${d1}`, -4,  10);
+    // קצה גובה-שמאלי (O→C_): c יחידות × d3 מ"מ
+    svg += edgeTxt(O, C_, `${c}×${d3}`, -14, 0);
 
     svgEl.innerHTML = svg;
   }
