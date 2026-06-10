@@ -1299,98 +1299,99 @@
   /* ── 3D Isometric Drawing — קופסא אחת עם גריד ── */
   function drawIsometric(svgEl, a, b, c, d1, d2, d3) {
     const SVG_W = 260, SVG_H = 190;
-    const C30 = Math.cos(Math.PI / 6);   // cos30 ≈ 0.866
-    const S30 = Math.sin(Math.PI / 6);   // sin30 = 0.5
+    const C30 = Math.cos(Math.PI / 6);
+    const S30 = Math.sin(Math.PI / 6);
+    const PAD = 22;
 
-    // מידות הקרטון (בפרופורציה לפי מוצר)
-    const W = a * d1;   // רוחב  → ימין
-    const D = b * d2;   // עומק  → שמאל
-    const H = c * d3;   // גובה  → למעלה
+    // מידות הקרטון לפי סידור:
+    // W = a*d1 → ציר ימין  (צד ימין מחולק ל-a עמודות × d1 מ"מ)
+    // D = b*d2 → ציר שמאל (צד שמאל מחולק ל-b עמודות × d2 מ"מ)
+    // H = c*d3 → ציר גובה  (גובה מחולק ל-c שורות × d3 מ"מ)
+    const W = a * d1;
+    const D = b * d2;
+    const H = c * d3;
 
-    // קנה מידה — כך שהציור יתאים ב-SVG
-    const isoTotalW = (W + D) * C30;
-    const isoTotalH = (W + D) * S30 + H;
-    const PAD = 18;
-    let s = Math.min((SVG_W - PAD * 2) / isoTotalW, (SVG_H - PAD * 2) / isoTotalH) * 0.88;
+    // חישוב תחום הציור הנורמלי (s=1) לכל 7 נקודות
+    const pts0 = {
+      O:  [0,          0         ],
+      A:  [W*C30,      W*S30     ],
+      B:  [-D*C30,     D*S30     ],
+      C:  [0,          -H        ],
+      E:  [W*C30,      W*S30 - H ],
+      F:  [-D*C30,     D*S30 - H ],
+      G:  [(W-D)*C30,  (W+D)*S30 - H]
+    };
+    const allX = Object.values(pts0).map(p => p[0]);
+    const allY = Object.values(pts0).map(p => p[1]);
+    const minX = Math.min(...allX), maxX = Math.max(...allX);
+    const minY = Math.min(...allY), maxY = Math.max(...allY);
+
+    // קנה מידה כדי שהציור יתאים לקנבס
+    let s = Math.min((SVG_W - PAD*2) / (maxX - minX),
+                     (SVG_H - PAD*2) / (maxY - minY)) * 0.88;
     if (!isFinite(s) || s <= 0) s = 0.2;
 
-    // פינה קדמית-תחתונה (O) — מרוכזת בציור
-    const Ox = SVG_W / 2 + (D - W) * C30 * s / 2;
-    const Oy = PAD + isoTotalH * s;
+    // מרכז הציור בקנבס
+    const cx = SVG_W/2 - (minX + (maxX-minX)/2) * s;
+    const cy = SVG_H/2 - (minY + (maxY-minY)/2) * s;
 
-    // וקטורי כיוון
-    const rX =  C30 * s, rY = S30 * s;   // ימין (W)
-    const lX = -C30 * s, lY = S30 * s;   // שמאל (D)
-    const uY = -s;                         // למעלה (H)
+    // וקטורי כיוון בסקאלה אמיתית
+    const rX =  C30 * s, rY = S30 * s;
+    const lX = -C30 * s, lY = S30 * s;
+    const uY = -s;
 
-    // 7 נקודות המפתח
-    const O = [Ox,              Oy             ];
-    const A = [Ox + W*rX,       Oy + W*rY      ];  // O + W right
-    const B = [Ox + D*lX,       Oy + D*lY      ];  // O + D left
-    const C_ = [Ox,             Oy + H*uY      ];  // O + H up
-    const E = [A[0],            A[1] + H*uY    ];  // A + H up
-    const F = [B[0],            B[1] + H*uY    ];  // B + H up
-    const G = [C_[0] + W*rX + D*lX, C_[1] + W*rY + D*lY]; // far top corner
+    // 7 נקודות סופיות
+    const O  = [cx,              cy             ];
+    const A  = [cx + W*rX,       cy + W*rY      ];
+    const B  = [cx + D*lX,       cy + D*lY      ];
+    const C_ = [cx,              cy + H*uY      ];
+    const E  = [A[0],            A[1] + H*uY    ];
+    const F  = [B[0],            B[1] + H*uY    ];
+    const G  = [C_[0]+W*rX+D*lX, C_[1]+W*rY+D*lY];
 
-    const p = p => `${p[0].toFixed(1)},${p[1].toFixed(1)}`;
+    const fmt = p => `${p[0].toFixed(1)},${p[1].toFixed(1)}`;
     const poly = (pts, fill) =>
-      `<polygon points="${pts.map(p).join(' ')}" fill="${fill}" stroke="#1e293b" stroke-width="2" stroke-linejoin="round"/>`;
+      `<polygon points="${pts.map(fmt).join(' ')}" fill="${fill}" stroke="#1e293b" stroke-width="2" stroke-linejoin="round"/>`;
     const ln = (p1, p2) =>
-      `<line x1="${p1[0].toFixed(1)}" y1="${p1[1].toFixed(1)}" x2="${p2[0].toFixed(1)}" y2="${p2[1].toFixed(1)}" stroke="#1e293b" stroke-width="0.9" opacity="0.5"/>`;
+      `<line x1="${p1[0].toFixed(1)}" y1="${p1[1].toFixed(1)}" x2="${p2[0].toFixed(1)}" y2="${p2[1].toFixed(1)}" stroke="#1e293b" stroke-width="0.9" opacity="0.45"/>`;
 
     let svg = `<rect width="${SVG_W}" height="${SVG_H}" fill="#f0f4ff" rx="8"/>`;
 
-    // שלושה צדדים — כל אחד בצבע שונה
-    svg += poly([O, B, F, C_], '#fca5a5');       // צד שמאל — אדום
-    svg += poly([O, A, E, C_], '#86efac');       // צד ימין — ירוק
-    svg += poly([C_, E, G, F], '#93c5fd');       // גג — כחול
+    // שלושה צדדים
+    svg += poly([O, B, F, C_], '#fca5a5');   // שמאל — אדום   (D × H)
+    svg += poly([O, A, E, C_], '#86efac');   // ימין  — ירוק   (W × H)
+    svg += poly([C_, E, G, F], '#93c5fd');   // גג    — כחול   (W × D)
 
-    // קווי גריד — צד ימין (b עמודות, c שורות)
-    for (let i = 1; i < c; i++) {
-      const t = i / c;
-      svg += ln([O[0], O[1] + t*H*uY], [A[0], A[1] + t*H*uY]);
-    }
-    for (let j = 1; j < b; j++) {
-      const t = j / b;
-      svg += ln([O[0] + t*W*rX, O[1] + t*W*rY], [C_[0] + t*W*rX, C_[1] + t*W*rY]);
-    }
+    // גריד — צד ימין: W=a*d1 → a עמודות | H=c*d3 → c שורות
+    for (let i = 1; i < c; i++) { const t=i/c;
+      svg += ln([O[0], O[1]+t*H*uY], [A[0], A[1]+t*H*uY]); }
+    for (let j = 1; j < a; j++) { const t=j/a;
+      svg += ln([O[0]+t*W*rX, O[1]+t*W*rY], [C_[0]+t*W*rX, C_[1]+t*W*rY]); }
 
-    // קווי גריד — צד שמאל (a עמודות, c שורות)
-    for (let i = 1; i < c; i++) {
-      const t = i / c;
-      svg += ln([O[0], O[1] + t*H*uY], [B[0], B[1] + t*H*uY]);
-    }
-    for (let j = 1; j < a; j++) {
-      const t = j / a;
-      svg += ln([O[0] + t*D*lX, O[1] + t*D*lY], [C_[0] + t*D*lX, C_[1] + t*D*lY]);
-    }
+    // גריד — צד שמאל: D=b*d2 → b עמודות | H=c*d3 → c שורות
+    for (let i = 1; i < c; i++) { const t=i/c;
+      svg += ln([O[0], O[1]+t*H*uY], [B[0], B[1]+t*H*uY]); }
+    for (let j = 1; j < b; j++) { const t=j/b;
+      svg += ln([O[0]+t*D*lX, O[1]+t*D*lY], [C_[0]+t*D*lX, C_[1]+t*D*lY]); }
 
-    // קווי גריד — גג (b עמודות, a שורות)
-    for (let j = 1; j < b; j++) {
-      const t = j / b;
-      svg += ln([C_[0] + t*W*rX, C_[1] + t*W*rY], [F[0] + t*W*rX, F[1] + t*W*rY]);
-    }
-    for (let i = 1; i < a; i++) {
-      const t = i / a;
-      svg += ln([C_[0] + t*D*lX, C_[1] + t*D*lY], [E[0] + t*D*lX, E[1] + t*D*lY]);
-    }
+    // גריד — גג: W → a עמודות | D → b שורות
+    for (let j = 1; j < a; j++) { const t=j/a;
+      svg += ln([C_[0]+t*W*rX, C_[1]+t*W*rY], [F[0]+t*W*rX, F[1]+t*W*rY]); }
+    for (let i = 1; i < b; i++) { const t=i/b;
+      svg += ln([C_[0]+t*D*lX, C_[1]+t*D*lY], [E[0]+t*D*lX, E[1]+t*D*lY]); }
 
-    // תוויות על קצוות הקופסא — n×מ"מ
-    const mid = (p1, p2) => [(p1[0]+p2[0])/2, (p1[1]+p2[1])/2];
-
-    // פונקציה לתווית על קצה עם הזזה קלה מחוץ לקצה
-    const edgeTxt = (p1, p2, label, offsetX, offsetY) => {
-      const mx = (p1[0]+p2[0])/2 + offsetX;
-      const my = (p1[1]+p2[1])/2 + offsetY;
+    // תוויות על הצלעות — מחוץ לקופסא
+    const edgeLbl = (p1, p2, label, ox, oy) => {
+      const mx = (p1[0]+p2[0])/2 + ox, my = (p1[1]+p2[1])/2 + oy;
       return `<text x="${mx.toFixed(1)}" y="${my.toFixed(1)}" text-anchor="middle" dominant-baseline="middle" font-family="Heebo,sans-serif" font-size="10" font-weight="700" fill="#1e293b">${label}</text>`;
     };
 
-    // קצה תחתון-ימני (O→A): b יחידות × d2 מ"מ
-    svg += edgeTxt(O, A, `${b}×${d2}`,  4,  10);
-    // קצה תחתון-שמאלי (O→B): a יחידות × d1 מ"מ
-    svg += edgeTxt(O, B, `${a}×${d1}`, -4,  10);
-    // קצה גובה-שמאלי (O→C_): c יחידות × d3 מ"מ
-    svg += edgeTxt(O, C_, `${c}×${d3}`, -14, 0);
+    // O→A (ימין תחתון): a יחידות × d1 מ"מ
+    svg += edgeLbl(O, A, `${a}×${d1}`, 6, 12);
+    // O→B (שמאל תחתון): b יחידות × d2 מ"מ
+    svg += edgeLbl(O, B, `${b}×${d2}`, -6, 12);
+    // O→C_ (גובה): c יחידות × d3 מ"מ
+    svg += edgeLbl(O, C_, `${c}×${d3}`, -16, 0);
 
     svgEl.innerHTML = svg;
   }
