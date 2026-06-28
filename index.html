@@ -816,16 +816,16 @@
 
   <div class="form-grid">
     <div class="field">
-      <label>אורך מוצר <span class="unit">(מ"מ)</span></label>
-      <input type="number" id="prodL" placeholder="" min="1" />
+      <label>אורך מוצר <span class="unit">(ס"מ)</span></label>
+      <input type="number" id="prodL" placeholder="" min="0.1" step="0.1" />
     </div>
     <div class="field">
-      <label>רוחב מוצר <span class="unit">(מ"מ)</span></label>
-      <input type="number" id="prodW" placeholder="" min="1" />
+      <label>רוחב מוצר <span class="unit">(ס"מ)</span></label>
+      <input type="number" id="prodW" placeholder="" min="0.1" step="0.1" />
     </div>
     <div class="field">
-      <label>גובה מוצר <span class="unit">(מ"מ)</span></label>
-      <input type="number" id="prodH" placeholder="" min="1" />
+      <label>גובה מוצר <span class="unit">(ס"מ)</span></label>
+      <input type="number" id="prodH" placeholder="" min="0.1" step="0.1" />
     </div>
     <div class="field">
       <label>כמות מוצרים <span class="unit">(יח')</span></label>
@@ -852,24 +852,24 @@
     <div class="pallet-options-inner">
       <h3>סוג משטח</h3>
       <div class="pallet-type-pills">
-        <button class="pallet-pill" onclick="setPalletType(1000, 1200, 2000, this)">משטח גדול</button>
-        <button class="pallet-pill" onclick="setPalletType(800, 1200, 1700, this)">משטח יורו</button>
+        <button class="pallet-pill" onclick="setPalletType(100, 120, 200, this)">משטח גדול</button>
+        <button class="pallet-pill" onclick="setPalletType(80, 120, 170, this)">משטח יורו</button>
       </div>
       <div class="pallet-fields">
         <div class="field">
-          <label>רוחב משטח <span class="unit">(מ"מ)</span></label>
-          <input type="number" id="palW" min="1" value="1000" />
+          <label>רוחב משטח <span class="unit">(ס"מ)</span></label>
+          <input type="number" id="palW" min="1" step="0.1" value="100" />
         </div>
         <div class="field">
-          <label>עומק משטח <span class="unit">(מ"מ)</span></label>
-          <input type="number" id="palD" min="1" value="1200" />
+          <label>עומק משטח <span class="unit">(ס"מ)</span></label>
+          <input type="number" id="palD" min="1" step="0.1" value="120" />
         </div>
         <div class="field">
-          <label>גובה מקסימלי <span class="unit">(מ"מ)</span></label>
-          <input type="number" id="palH" min="1" value="2000" />
+          <label>גובה מקסימלי <span class="unit">(ס"מ)</span></label>
+          <input type="number" id="palH" min="1" step="0.1" value="200" />
         </div>
       </div>
-      <p class="overhang-info">✦ החישוב כולל בליטה אפשרית של עד 40 מ"מ מכל כיוון</p>
+      <p class="overhang-info">✦ החישוב כולל בליטה אפשרית של עד 4 ס"מ מכל כיוון</p>
       <div class="overhang-row">
         <input type="checkbox" id="noOverhang" />
         <label for="noOverhang">ללא בליטה מהמשטח</label>
@@ -1112,9 +1112,9 @@
     const palletEnabled = $('enablePallet').checked;
     let palW, palD, palH, noOverhang;
     if (palletEnabled) {
-      palW       = parseFloat($('palW').value);
-      palD       = parseFloat($('palD').value);
-      palH       = parseFloat($('palH').value);
+      palW       = parseFloat($('palW').value) * 10;
+      palD       = parseFloat($('palD').value) * 10;
+      palH       = parseFloat($('palH').value) * 10;
       noOverhang = $('noOverhang').checked;
       if (isNaN(palW) || palW <= 0 || isNaN(palD) || palD <= 0 || isNaN(palH) || palH <= 0) {
         errors.push('מידות משטח');
@@ -1133,7 +1133,10 @@
       return;
     }
 
-    const { prodL, prodW, prodH, qty, thickness: t } = vals;
+    const { qty, thickness: t } = vals;
+    const prodL = vals.prodL * 10;
+    const prodW = vals.prodW * 10;
+    const prodH = vals.prodH * 10;
     const qtyInt = Math.round(qty);
 
     const triplets     = getFactorTriplets(qtyInt);
@@ -1294,7 +1297,7 @@
 
         if (p.usedW && p.usedD) {
           footprintHtml = `
-            <div class="footprint-row">שטח בשימוש: <span>${p.usedW} × ${p.usedD} מ"מ</span></div>
+            <div class="footprint-row">שטח בשימוש: <span>${mm2cm(p.usedW)} × ${mm2cm(p.usedD)} ס"מ</span></div>
           `;
         }
 
@@ -1333,11 +1336,11 @@
         data-a="${r.a}" data-b="${r.b}" data-c="${r.c}"
         data-d1="${r.d1}" data-d2="${r.d2}" data-d3="${r.d3}"
       ></svg>
-      <div class="iso-label">${r.a}×${r.b}×${r.c} | ${r.d1}×${r.d2}×${r.d3} מ"מ</div>
+      <div class="iso-label">${r.a}×${r.b}×${r.c} | ${mm2cm(r.d1)}×${mm2cm(r.d2)}×${mm2cm(r.d3)} ס"מ</div>
       <div class="iso-legend">
-        <span><span class="iso-legend-dot" style="background:#2563eb"></span>${r.d1} מ"מ (×${r.a})</span>
-        <span><span class="iso-legend-dot" style="background:#dc2626"></span>${r.d2} מ"מ (×${r.b})</span>
-        <span><span class="iso-legend-dot" style="background:#059669"></span>${r.d3} מ"מ (×${r.c})</span>
+        <span><span class="iso-legend-dot" style="background:#2563eb"></span>${mm2cm(r.d1)} ס"מ (×${r.a})</span>
+        <span><span class="iso-legend-dot" style="background:#dc2626"></span>${mm2cm(r.d2)} ס"מ (×${r.b})</span>
+        <span><span class="iso-legend-dot" style="background:#059669"></span>${mm2cm(r.d3)} ס"מ (×${r.c})</span>
       </div>
     `;
 
@@ -1350,7 +1353,7 @@
       <div class="arrangement">
         <span class="fraction">${r.a} × ${r.b} × ${r.c} מוצרים</span>
         <div style="font-size:.78rem; color:var(--gray-400); margin-top:5px;">
-          מוצר: ${r.d1}×${r.d2}×${r.d3} מ"מ
+          מוצר: ${mm2cm(r.d1)}×${mm2cm(r.d2)}×${mm2cm(r.d3)} ס"מ
         </div>
       </div>
 
@@ -1361,19 +1364,8 @@
 
       <div class="data-rows">
         <div class="data-row">
-          <span class="lbl">מרחב פנימי (מ"מ)</span>
-          <span class="val">${innerL} × ${innerW} × ${innerH}</span>
-        </div>
-        <div class="data-row">
           <span class="lbl">מרחב פנימי (ס"מ)</span>
           <span class="val">${mm2cm(innerL)} × ${mm2cm(innerW)} × ${mm2cm(innerH)}</span>
-        </div>
-
-        <hr class="card-divider" />
-
-        <div class="data-row">
-          <span class="lbl">מידות חיצוניות (מ"מ)</span>
-          <span class="val">${r.outerL} × ${r.outerW} × ${r.outerH}</span>
         </div>
         <div class="data-row">
           <span class="lbl">מידות חיצוניות (ס"מ)</span>
@@ -1802,7 +1794,7 @@
           </div>
           ${p.layers ? `<div class="row"><span class="lbl">מספר שכבות</span><span class="val">${p.layers}</span></div>` : ''}
           ${p.perLayer ? `<div class="row"><span class="lbl">קרטונים בשכבה</span><span class="val">${p.perLayer}</span></div>` : ''}
-          ${p.usedW ? `<div class="row"><span class="lbl">שטח בשימוש</span><span class="val">${p.usedW} × ${p.usedD} מ"מ</span></div>` : ''}
+          ${p.usedW ? `<div class="row"><span class="lbl">שטח בשימוש</span><span class="val">${mm2cm(p.usedW)} × ${mm2cm(p.usedD)} ס"מ</span></div>` : ''}
           ${zonesHtml}
         </div>`;
       }
@@ -1890,16 +1882,14 @@
   <div class="product-info">
     <h2>${productName || 'ללא שם מוצר'}</h2>
     ${sku ? `<div class="sub">מק"ט: <strong>${sku}</strong></div>` : ''}
-    <div class="sub">מידות מוצר: ${r.d1} × ${r.d2} × ${r.d3} מ"מ</div>
+    <div class="sub">מידות מוצר: ${mm2cm(r.d1)} × ${mm2cm(r.d2)} × ${mm2cm(r.d3)} ס"מ</div>
   </div>
 
   <div class="cols">
     <div class="col-left">
       <div class="section">
         <h3>📐 סידור בקרטון — ${r.a} × ${r.b} × ${r.c} מוצרים</h3>
-        <div class="row"><span class="lbl">מרחב פנימי (מ"מ)</span><span class="val">${innerL} × ${innerW} × ${innerH}</span></div>
         <div class="row"><span class="lbl">מרחב פנימי (ס"מ)</span><span class="val">${mm2cm(innerL)} × ${mm2cm(innerW)} × ${mm2cm(innerH)}</span></div>
-        <div class="row"><span class="lbl">מידות חיצוניות (מ"מ)</span><span class="val">${r.outerL} × ${r.outerW} × ${r.outerH}</span></div>
         <div class="row"><span class="lbl">מידות חיצוניות (ס"מ)</span><span class="val">${mm2cm(r.outerL)} × ${mm2cm(r.outerW)} × ${mm2cm(r.outerH)}</span></div>
       </div>
       ${weightHtml}
@@ -1910,9 +1900,9 @@
         <h3>🗂️ ציור תלת-ממדי</h3>
         <svg width="100%" viewBox="0 0 320 240" style="display:block;border-radius:8px;background:#f8fafc;">${isoSvgStr}</svg>
         <div class="legend" style="margin-top:10px;">
-          <span><span class="legend-dot" style="background:${col1.edge}"></span>${r.d1} מ"מ (×${r.a})</span>
-          <span><span class="legend-dot" style="background:${col2.edge}"></span>${r.d2} מ"מ (×${r.b})</span>
-          <span><span class="legend-dot" style="background:${col3.edge}"></span>${r.d3} מ"מ (×${r.c})</span>
+          <span><span class="legend-dot" style="background:${col1.edge}"></span>${mm2cm(r.d1)} ס"מ (×${r.a})</span>
+          <span><span class="legend-dot" style="background:${col2.edge}"></span>${mm2cm(r.d2)} ס"מ (×${r.b})</span>
+          <span><span class="legend-dot" style="background:${col3.edge}"></span>${mm2cm(r.d3)} ס"מ (×${r.c})</span>
         </div>
       </div>
     </div>
