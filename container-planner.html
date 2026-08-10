@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>סדובסקי בע״מ - תכנון מכולה</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;600;700;800;900&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --blue: #2563eb; --blue-light: #dbeafe; --blue-mid: #1e3a5f;
+      --green: #059669; --green-light: #d1fae5;
+      --amber: #d97706; --amber-light: #fef3c7;
+      --red: #dc2626; --red-light: #fee2e2;
+      --gray-50: #f8fafc; --gray-100: #f1f5f9; --gray-200: #e2e8f0;
+      --gray-400: #94a3b8; --gray-600: #475569; --gray-700: #374151; --gray-900: #0f172a;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Heebo', sans-serif;
+      background: var(--gray-50); color: #1e293b;
+      min-height: 100vh; direction: rtl;
+    }
+    header {
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%);
+      color: white; text-align: center; padding: 28px 20px 24px;
+      position: relative;
+    }
+    header h1 { font-size: 1.75rem; font-weight: 900; }
+    header p  { font-size: .9rem; color: rgba(255,255,255,.65); margin-top: 4px; }
+    .back-link {
+      position: absolute; right: 20px; top: 20px;
+      color: rgba(255,255,255,.7); font-size: .85rem;
+      text-decoration: none; display: flex; align-items: center; gap: 5px;
+    }
+    .back-link:hover { color: white; }
+
+    main { max-width: 900px; margin: 0 auto; padding: 24px 16px 60px; }
+
+    /* ── Form card ── */
+    .form-card {
+      background: white; border-radius: 18px;
+      box-shadow: 0 4px 24px rgba(0,0,0,.07);
+      padding: 28px 24px; margin-bottom: 24px;
+    }
+    .form-card h2 { font-size: 1.05rem; font-weight: 700; color: var(--blue-mid); margin-bottom: 18px; border-right: 3px solid var(--blue); padding-right: 10px; }
+
+    /* Pills */
+    .pill-group { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+    .pill {
+      padding: 8px 18px; border-radius: 30px; border: 2px solid var(--gray-200);
+      background: white; font-family: 'Heebo',sans-serif; font-size: .9rem;
+      font-weight: 600; cursor: pointer; color: var(--gray-600); transition: all .2s;
+    }
+    .pill:hover { border-color: var(--blue); color: var(--blue); }
+    .pill.active { background: var(--blue); border-color: var(--blue); color: white; }
+    .pill.green.active { background: var(--green); border-color: var(--green); }
+
+    /* Form grid */
+    .form-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-bottom: 16px; }
+    .field label { display: block; font-size: .82rem; font-weight: 600; color: var(--gray-700); margin-bottom: 5px; }
+    .unit { color: var(--gray-400); font-weight: 400; }
+    .field input {
+      width: 100%; padding: 11px 13px; border: 1.5px solid var(--gray-200);
+      border-radius: 10px; font-family: 'Heebo',sans-serif; font-size: 1rem;
+      color: #1e293b; transition: border-color .2s; background: var(--gray-50);
+    }
+    .field input:focus { outline: none; border-color: var(--blue); background: white; }
+    .field input.error { border-color: var(--red); background: var(--red-light); }
+
+    .section-label { font-size: .82rem; font-weight: 700; color: var(--gray-600); margin-bottom: 8px; text-transform: uppercase; letter-spacing: .5px; }
+
+    .mode-section { margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--gray-200); }
+
+    .info-box {
+      background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px;
+      padding: 12px 16px; font-size: .83rem; color: #1e40af; margin-top: 12px;
+      display: flex; gap: 8px; align-items: flex-start;
+    }
+
+    .calc-btn {
+      width: 100%; padding: 14px; margin-top: 20px;
+      background: linear-gradient(135deg, #1e3a5f, #2563eb);
+      color: white; border: none; border-radius: 12px;
+      font-family: 'Heebo',sans-serif; font-size: 1.05rem; font-weight: 800;
+      cursor: pointer; transition: opacity .2s;
+    }
+    .calc-btn:hover { opacity: .9; }
+
+    .error-banner {
+      background: var(--red-light); color: var(--red); border: 1px solid #fca5a5;
+      border-radius: 10px; padding: 10px 14px; font-size: .88rem; font-weight: 600;
+      margin-top: 12px; display: none;
+    }
+    .error-banner.visible { display: block; }
+
+    /* ── Results ── */
+    #resultsSection { display: none; }
+    .results-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 16px;
+    }
+    .results-header h2 { font-size: 1.1rem; font-weight: 800; color: var(--blue-mid); }
+    .results-count { font-size: .85rem; color: var(--gray-400); }
+
+    .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px,1fr)); gap: 20px; }
+
+    /* ── Card ── */
+    .card {
+      background: white; border-radius: 16px;
+      box-shadow: 0 2px 16px rgba(0,0,0,.06);
+      border: 1.5px solid var(--gray-200); padding: 22px 20px;
+      position: relative; overflow: hidden;
+    }
+    .card.rank-1 { border-color: #fbbf24; background: linear-gradient(180deg,#fffbeb 0%,white 60%); }
+    .card.rank-2 { border-color: #d1d5db; background: linear-gradient(180deg,#f9fafb 0%,white 60%); }
+    .card.rank-3 { border-color: #d97706; background: linear-gradient(180deg,#fff7ed 0%,white 60%); }
+
+    .rank-badge {
+      position: absolute; top: 14px; left: 14px;
+      font-size: .7rem; font-weight: 800; padding: 3px 8px;
+      border-radius: 30px; background: var(--gray-100); color: var(--gray-600);
+    }
+    .card.rank-1 .rank-badge { background: #fbbf24; color: white; }
+    .card.rank-2 .rank-badge { background: #9ca3af; color: white; }
+    .card.rank-3 .rank-badge { background: #d97706; color: white; }
+
+    .card-title { text-align: center; font-size: 1.25rem; font-weight: 800; color: var(--blue-mid); margin-bottom: 4px; }
+    .card-sub { text-align: center; font-size: .78rem; color: var(--gray-400); margin-bottom: 16px; }
+
+    .total-box {
+      background: linear-gradient(135deg, #1e3a5f, #2563eb);
+      color: white; border-radius: 12px; padding: 14px;
+      text-align: center; margin-bottom: 14px;
+    }
+    .total-box .lbl-top { font-size: .78rem; opacity: .8; }
+    .total-box .val-top { font-size: 2rem; font-weight: 900; line-height: 1.1; }
+
+    .data-row { display: flex; justify-content: space-between; padding: 5px 0; font-size: .87rem; border-bottom: 1px solid var(--gray-100); }
+    .data-row .lbl { color: var(--gray-600); }
+    .data-row .val { font-weight: 700; color: #1e293b; }
+    .card-divider { border: none; border-top: 1px solid var(--gray-100); margin: 10px 0; }
+
+    .fill-bar-wrap { margin: 12px 0 4px; }
+    .fill-bar-label { font-size: .78rem; color: var(--gray-600); margin-bottom: 4px; display: flex; justify-content: space-between; }
+    .fill-bar { background: var(--gray-100); border-radius: 6px; height: 10px; overflow: hidden; }
+    .fill-bar-inner { height: 100%; border-radius: 6px; background: linear-gradient(90deg, #2563eb, #059669); transition: width .4s ease; }
+
+    .weight-warning { background: #fef3c7; border: 1px solid #fde68a; border-radius: 8px; padding: 8px 12px; font-size: .82rem; color: #92400e; margin-top: 10px; }
+
+    .best-tag { text-align: center; margin-top: 12px; }
+    .best-tag span { background: var(--green); color: white; font-size: .82rem; font-weight: 700; padding: 5px 14px; border-radius: 30px; }
+
+    /* Pallet mini top-view */
+    .pallet-section { margin-top: 14px; }
+    .pallet-section h4 { font-size: .82rem; font-weight: 700; color: var(--gray-600); margin-bottom: 8px; }
+
+    footer {
+      text-align: center; font-size: .78rem; color: var(--gray-400);
+      padding: 20px; border-top: 1px solid var(--gray-200); margin-top: 40px;
+    }
+
+    @media (max-width: 600px) {
+      .form-grid { grid-template-columns: 1fr 1fr; }
+      .cards-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <a class="back-link" href="index.html">→ ראשי</a>
+  <h1>🚢 סדובסקי בע״מ - תכנון מכולה</h1>
+  <p>חישוב כמות קרטונים אופטימלית במכולה</p>
+</header>
+
+<main>
+  <div class="form-card">
+    <h2>נתוני קלט</h2>
+
+    <!-- Container type -->
+    <div class="section-label">סוג מכולה</div>
+    <div class="pill-group" id="contTypePills">
+      <button class="pill active" onclick="setContType('40hc',this)">40ft High Cube (נפוץ)</button>
+      <button class="pill" onclick="setContType('20st',this)">20ft Standard</button>
+    </div>
+
+    <!-- Carton dimensions -->
+    <div class="form-grid">
+      <div class="field">
+        <label>אורך קרטון <span class="unit">(ס"מ)</span></label>
+        <input type="number" id="cartL" min="1" step="0.1" placeholder=""/>
+      </div>
+      <div class="field">
+        <label>רוחב קרטון <span class="unit">(ס"מ)</span></label>
+        <input type="number" id="cartW" min="1" step="0.1" placeholder=""/>
+      </div>
+      <div class="field">
+        <label>גובה קרטון <span class="unit">(ס"מ)</span></label>
+        <input type="number" id="cartH" min="1" step="0.1" placeholder=""/>
+      </div>
+      <div class="field">
+        <label>משקל קרטון <span class="unit">(ק"ג, אופציונלי)</span></label>
+        <input type="number" id="cartWeight" min="0" step="0.1" placeholder=""/>
+      </div>
+      <div class="field">
+        <label>מרווח ביטחון <span class="unit">(%)</span></label>
+        <input type="number" id="margin" min="0" max="20" step="0.5" value="2"/>
+      </div>
+    </div>
+
+    <!-- Mode -->
+    <div class="mode-section">
+      <div class="section-label">אופן הכנסה</div>
+      <div class="pill-group" id="modePills">
+        <button class="pill active" onclick="setMode('direct',this)">📦 ישיר (קרטונים בתפזורת)</button>
+        <button class="pill green" onclick="setMode('pallet',this)">🏗️ על משטחים</button>
+      </div>
+      <div class="info-box" id="modeInfo">
+        קרטונים מוכנסים ישירות למכולה בסידור אופטימלי — ניצולת מרבית של הנפח.
+      </div>
+    </div>
+
+    <button class="calc-btn" onclick="calculate()">חשב סידורים אפשריים</button>
+    <div class="error-banner" id="errorBanner"></div>
+  </div>
+
+  <!-- Results -->
+  <div id="resultsSection">
+    <div class="results-header">
+      <h2>תוצאות</h2>
+      <span class="results-count" id="resultsCount"></span>
+    </div>
+    <div class="cards-grid" id="cardsGrid"></div>
+  </div>
+</main>
+
+<footer>כל הזכויות שמורות לניב סדובסקי © | סדובסקי בע״מ</footer>
+
+<script>
+  /* ── Constants ── */
+  const CONTAINERS = {
+    '40hc': { name: '40ft High Cube', L: 1190, W: 230, H: 262, maxPayload: 26330 },
+    '20st': { name: '20ft Standard',  L: 590,  W: 234, H: 239, maxPayload: 21700 },
+  };
+
+  const PALLET_TYPES = [
+    { name: 'משטח גדול (120×100 ס"מ)', w: 120, d: 100 },
+    { name: 'משטח יורו (120×80 ס"מ)',  w: 120, d: 80  },
+  ];
+  const MAX_PALLET_H = 220; // cm — standard max pallet height
+
+  let _currentCont = '40hc';
+  let _currentMode = 'direct';
+
+  /* ── UI helpers ── */
+  const $ = id => document.getElementById(id);
+
+  function setContType(type, btn) {
+    _currentCont = type;
+    $('contTypePills').querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+  function setMode(mode, btn) {
+    _currentMode = mode;
+    $('modePills').querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    $('modeInfo').textContent = mode === 'direct'
+      ? 'קרטונים מוכנסים ישירות למכולה בסידור אופטימלי — ניצולת מרבית של הנפח.'
+      : 'קרטונים מסודרים על משטחי פלט ואז נכנסים למכולה — פריקה והעמסה קלות יותר.';
+  }
+
+  /* ── Algorithms ── */
+  function getOrientations(l, w, h) {
+    const perms = [
+      [l,w,h],[l,h,w],[w,l,h],[w,h,l],[h,l,w],[h,w,l]
+    ];
+    const seen = new Set();
+    const out = [];
+    for (const p of perms) {
+      const key = [...p].sort((a,b)=>a-b).join(',');
+      if (!seen.has(key)) { seen.add(key); out.push(p); }
+    }
+    return out;
+  }
+
+  function calcDirect(cL, cW, cH, cont, margin) {
+    const eff = v => v * (1 - margin / 100);
+    const eL = eff(cont.L), eW = eff(cont.W), eH = eff(cont.H);
+    const orientations = getOrientations(cL, cW, cH);
+    const results = [];
+    const seen = new Set();
+
+    for (const [d1, d2, d3] of orientations) {
+      const nx = Math.floor(eL / d1);
+      const ny = Math.floor(eW / d2);
+      const nz = Math.floor(eH / d3);
+      if (!nx || !ny || !nz) continue;
+      const total = nx * ny * nz;
+      const key = [nx,ny,nz].sort((a,b)=>a-b).join('×');
+      if (seen.has(key)) continue;
+      seen.add(key);
+      const usedL = nx*d1, usedW = ny*d2, usedH = nz*d3;
+      const fillPct = (usedL * usedW * usedH) / (cont.L * cont.W * cont.H) * 100;
+      results.push({ nx, ny, nz, d1, d2, d3, total, usedL, usedW, usedH, fillPct });
+    }
+    return results.sort((a,b) => b.total - a.total);
+  }
+
+  function calcPalletsInContainer(palW, palD, contL, contW) {
+    // Zone-split: try all splits along length and width
+    let best = 0;
+    const fits = (l, w, pl, pd) => Math.floor(l/pl) * Math.floor(w/pd);
+    // Try split along length: Zone A uses k*palW length, Zone B uses rest
+    for (let k = 0; k <= Math.floor(contL/palW); k++) {
+      const zA_len = k * palW; const zB_len = contL - zA_len;
+      // Zone A: palW along length, palD along width (both orientations)
+      const zA = Math.floor(zA_len/palW) * Math.floor(contW/palD);
+      const zA2 = Math.floor(zA_len/palD) * Math.floor(contW/palW);
+      // Zone B: palD along length
+      const zB = Math.floor(zB_len/palD) * Math.floor(contW/palW);
+      const zB2 = Math.floor(zB_len/palW) * Math.floor(contW/palD);
+      best = Math.max(best, Math.max(zA,zA2) + Math.max(zB,zB2));
+    }
+    // Also try split along width
+    for (let k = 0; k <= Math.floor(contW/palW); k++) {
+      const zA_w = k * palW; const zB_w = contW - zA_w;
+      const zA = Math.floor(contL/palW) * Math.floor(zA_w/palD);
+      const zA2 = Math.floor(contL/palD) * Math.floor(zA_w/palW);
+      const zB = Math.floor(contL/palD) * Math.floor(zB_w/palW);
+      const zB2 = Math.floor(contL/palW) * Math.floor(zB_w/palD);
+      best = Math.max(best, Math.max(zA,zA2) + Math.max(zB,zB2));
+    }
+    return best;
+  }
+
+  function calcPallet(cL, cW, cH, cont, margin) {
+    const eff = v => v * (1 - margin / 100);
+    const eL = eff(cont.L), eW = eff(cont.W);
+    const results = [];
+
+    for (const pal of PALLET_TYPES) {
+      const orientations = getOrientations(cL, cW, cH);
+      let bestConfig = null;
+
+      for (const [d1, d2, d3] of orientations) {
+        // d1 along pallet width, d2 along pallet depth, d3 vertical
+        const nx = Math.floor(pal.w / d1);
+        const ny = Math.floor(pal.d / d2);
+        const nz = Math.floor(MAX_PALLET_H / d3);
+        if (!nx || !ny || !nz) continue;
+        const count = nx * ny * nz;
+        const palH = nz * d3;
+        if (palH > cont.H) continue; // doesn't fit in container height
+        if (!bestConfig || count > bestConfig.count) {
+          bestConfig = { nx, ny, nz, d1, d2, d3, count, palH, pal };
+        }
+      }
+      if (!bestConfig) continue;
+
+      const palletsInCont = calcPalletsInContainer(pal.w, pal.d, eL, eW);
+      const totalCartons = palletsInCont * bestConfig.count;
+      const fillPct = (palletsInCont * pal.w * pal.d * bestConfig.palH)
+                      / (cont.L * cont.W * cont.H) * 100;
+
+      results.push({
+        pal, config: bestConfig,
+        palletsInCont, totalCartons, fillPct,
+      });
+    }
+    return results.sort((a,b) => b.totalCartons - a.totalCartons);
+  }
+
+  /* ── Main ── */
+  function calculate() {
+    // Clear errors
+    ['cartL','cartW','cartH'].forEach(id => $(id).classList.remove('error'));
+    $('errorBanner').classList.remove('visible');
+
+    const cL = parseFloat($('cartL').value);
+    const cW = parseFloat($('cartW').value);
+    const cH = parseFloat($('cartH').value);
+    const cartWeight = parseFloat($('cartWeight').value) || null;
+    const margin = parseFloat($('margin').value) || 0;
+
+    const errors = [];
+    if (!$('cartL').value || isNaN(cL) || cL <= 0) { errors.push('אורך קרטון'); $('cartL').classList.add('error'); }
+    if (!$('cartW').value || isNaN(cW) || cW <= 0) { errors.push('רוחב קרטון'); $('cartW').classList.add('error'); }
+    if (!$('cartH').value || isNaN(cH) || cH <= 0) { errors.push('גובה קרטון'); $('cartH').classList.add('error'); }
+
+    if (errors.length) {
+      $('errorBanner').textContent = 'יש למלא: ' + errors.join(', ');
+      $('errorBanner').classList.add('visible');
+      $('resultsSection').style.display = 'none';
+      return;
+    }
+
+    const cont = CONTAINERS[_currentCont];
+    let results;
+    let mode = _currentMode;
+
+    if (mode === 'direct') {
+      results = calcDirect(cL, cW, cH, cont, margin);
+    } else {
+      results = calcPallet(cL, cW, cH, cont, margin);
+    }
+
+    renderResults(results, mode, cont, cartWeight, margin);
+  }
+
+  /* ── Render ── */
+  function fmt1(n) { return parseFloat(n.toFixed(1)); }
+  function fmtPct(n) { return n.toFixed(1) + '%'; }
+
+  function renderResults(results, mode, cont, cartWeight, margin) {
+    const grid = $('cardsGrid');
+    grid.innerHTML = '';
+    $('resultsSection').style.display = 'block';
+
+    if (!results.length) {
+      grid.innerHTML = '<div style="padding:40px;text-align:center;color:#94a3b8;font-size:.95rem;">הקרטון גדול מדי למכולה שנבחרה 😕</div>';
+      $('resultsCount').textContent = '';
+      return;
+    }
+
+    $('resultsCount').textContent = results.length + ' סידורים נמצאו';
+
+    results.slice(0, 6).forEach((r, i) => {
+      const rank = i + 1;
+      const rankClass = rank <= 3 ? 'rank-' + rank : '';
+      const card = document.createElement('div');
+      card.className = 'card ' + rankClass;
+      card.innerHTML = mode === 'direct'
+        ? buildDirectCard(r, rank, cont, cartWeight, margin)
+        : buildPalletCard(r, rank, cont, cartWeight, margin);
+      grid.appendChild(card);
+    });
+  }
+
+  function rankLabel(r) {
+    return ['מקום 1','מקום 2','מקום 3'][r-1] || 'מקום ' + r;
+  }
+
+  function weightWarn(total, cartWeight, cont) {
+    if (!cartWeight) return '';
+    const totalKg = total * cartWeight;
+    const pct = (totalKg / cont.maxPayload * 100).toFixed(0);
+    const color = totalKg > cont.maxPayload ? '#dc2626' : totalKg > cont.maxPayload * 0.9 ? '#d97706' : '#059669';
+    return `<div class="weight-warning" style="border-color:${color};background:${color}11;color:${color};">
+      ⚖️ משקל כולל: <strong>${totalKg.toLocaleString('he-IL')} ק"ג</strong>
+      (${pct}% מעומס מרבי של ${cont.maxPayload.toLocaleString('he-IL')} ק"ג)
+      ${totalKg > cont.maxPayload ? ' — <strong>חריגה ממשקל מרבי!</strong>' : ''}
+    </div>`;
+  }
+
+  function fillBar(pct) {
+    const clamped = Math.min(pct, 100);
+    const color = pct > 90 ? '#059669' : pct > 70 ? '#2563eb' : '#94a3b8';
+    return `<div class="fill-bar-wrap">
+      <div class="fill-bar-label"><span>ניצולת נפח</span><span style="color:${color};font-weight:700;">${fmtPct(pct)}</span></div>
+      <div class="fill-bar"><div class="fill-bar-inner" style="width:${clamped}%;background:${color};"></div></div>
+    </div>`;
+  }
+
+  function buildDirectCard(r, rank, cont, cartWeight, margin) {
+    const effL = cont.L*(1-margin/100), effW = cont.W*(1-margin/100), effH = cont.H*(1-margin/100);
+    return `
+      <div class="rank-badge">${rankLabel(rank)}</div>
+      <div class="card-title" style="margin-top:10px;">${r.nx} × ${r.ny} × ${r.nz} קרטונים</div>
+      <div class="card-sub">כיוון: ${fmt1(r.d1)} × ${fmt1(r.d2)} × ${fmt1(r.d3)} ס"מ</div>
+      <div class="total-box">
+        <div class="lbl-top">סה"כ קרטונים במכולה</div>
+        <div class="val-top">${r.total.toLocaleString('he-IL')}</div>
+      </div>
+      <div class="data-row"><span class="lbl">נפח בשימוש (ס"מ)</span><span class="val">${fmt1(r.usedL)} × ${fmt1(r.usedW)} × ${fmt1(r.usedH)}</span></div>
+      <div class="data-row"><span class="lbl">שורות × עמודות × שכבות</span><span class="val">${r.nx} × ${r.ny} × ${r.nz}</span></div>
+      <div class="data-row"><span class="lbl">שטח פנימי מכולה</span><span class="val">${cont.L} × ${cont.W} × ${cont.H} ס"מ</span></div>
+      <div class="data-row"><span class="lbl">נפח אפקטיבי (עם ${margin}% מרווח)</span><span class="val">${fmt1(effL)} × ${fmt1(effW)} × ${fmt1(effH)} ס"מ</span></div>
+      ${fillBar(r.fillPct)}
+      ${weightWarn(r.total, cartWeight, cont)}
+      ${rank === 1 ? '<div class="best-tag" style="margin-top:12px;"><span>✔ הסידור הטוב ביותר</span></div>' : ''}
+    `;
+  }
+
+  function buildPalletCard(r, rank, cont, cartWeight, margin) {
+    const cfg = r.config;
+    return `
+      <div class="rank-badge">${rankLabel(rank)}</div>
+      <div class="card-title" style="margin-top:10px;">${r.pal.name}</div>
+      <div class="card-sub">${cfg.nx} × ${cfg.ny} × ${cfg.nz} קרטונים למשטח</div>
+      <div class="total-box">
+        <div class="lbl-top">סה"כ קרטונים במכולה</div>
+        <div class="val-top">${r.totalCartons.toLocaleString('he-IL')}</div>
+      </div>
+      <hr class="card-divider"/>
+      <div class="data-row"><span class="lbl">משטחים במכולה</span><span class="val">${r.palletsInCont}</span></div>
+      <div class="data-row"><span class="lbl">קרטונים למשטח</span><span class="val">${cfg.count}</span></div>
+      <div class="data-row"><span class="lbl">גובה ערימת קרטונים</span><span class="val">${fmt1(cfg.palH)} ס"מ</span></div>
+      <div class="data-row"><span class="lbl">כיוון על המשטח (ס"מ)</span><span class="val">${fmt1(cfg.d1)} × ${fmt1(cfg.d2)} × ${fmt1(cfg.d3)}</span></div>
+      <div class="data-row"><span class="lbl">שורות × עמודות × שכבות</span><span class="val">${cfg.nx} × ${cfg.ny} × ${cfg.nz}</span></div>
+      <div class="data-row"><span class="lbl">מכולה</span><span class="val">${cont.name} — ${cont.L}×${cont.W}×${cont.H} ס"מ</span></div>
+      ${fillBar(r.fillPct)}
+      ${weightWarn(r.totalCartons, cartWeight, cont)}
+      ${rank === 1 ? '<div class="best-tag" style="margin-top:12px;"><span>✔ הסידור הטוב ביותר</span></div>' : ''}
+    `;
+  }
+
+  /* Enter key */
+  document.addEventListener('keydown', e => { if (e.key === 'Enter') calculate(); });
+</script>
+
+</body>
+</html>
