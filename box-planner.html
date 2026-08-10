@@ -784,24 +784,6 @@
 <body>
 
 <!-- PDF Modal -->
-<div class="pdf-modal-overlay" id="pdfModalOverlay">
-  <div class="pdf-modal">
-    <h3>📄 שמירת PDF</h3>
-    <p>מלא את פרטי המוצר כדי לצרף לדוח</p>
-    <div class="field">
-      <label>שם מוצר</label>
-      <input type="text" id="pdfProductName" placeholder="לדוגמה: בקבוק שמן זית 500 מ״ל" />
-    </div>
-    <div class="field">
-      <label>מק"ט</label>
-      <input type="text" id="pdfSku" placeholder="לדוגמה: OIL-500-GR" />
-    </div>
-    <div class="pdf-modal-actions">
-      <button class="btn-pdf-confirm" onclick="confirmPdf()">הפק PDF 🖨️</button>
-      <button class="btn-pdf-cancel" onclick="closePdfModal()">ביטול</button>
-    </div>
-  </div>
-</div>
 
 <!-- Hidden print area -->
 <div id="print-area"></div>
@@ -1399,7 +1381,7 @@
 
       ${rank === 1 ? '<div class="best-tag"><span>✔ הסידור הטוב ביותר</span></div>' : ''}
 
-      <button class="pdf-btn" onclick="openPdfModal(this)">📄 שמור PDF</button>
+      <button class="pdf-btn" onclick="buildAndPrintPdf(this.closest('.card'))">📄 שמור PDF</button>
     `;
 
     // Store result data on card element for PDF export
@@ -1736,38 +1718,7 @@
   });
 
   /* ── PDF Export ── */
-  let _pdfTargetCard = null;
-
-  function openPdfModal(btn) {
-    _pdfTargetCard = btn.closest('.card');
-    $('pdfProductName').value = '';
-    $('pdfSku').value = '';
-    $('pdfModalOverlay').classList.add('open');
-    setTimeout(() => $('pdfProductName').focus(), 80);
-  }
-
-  function closePdfModal() {
-    $('pdfModalOverlay').classList.remove('open');
-    _pdfTargetCard = null;
-  }
-
-  $('pdfModalOverlay').addEventListener('click', function(e) {
-    if (e.target === this) closePdfModal();
-  });
-
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') closePdfModal();
-  });
-
-  function confirmPdf() {
-    if (!_pdfTargetCard) return;
-    const productName = $('pdfProductName').value.trim();
-    const sku = $('pdfSku').value.trim();
-    closePdfModal();
-    buildAndPrintPdf(_pdfTargetCard, productName, sku);
-  }
-
-  function buildAndPrintPdf(card, productName, sku) {
+  function buildAndPrintPdf(card) {
     const { r, rank, palletEnabled, unitWeightVal, innerL, innerW, innerH } = card._pdfData;
 
     const today = new Date().toLocaleDateString('he-IL', { year:'numeric', month:'long', day:'numeric' });
@@ -1820,7 +1771,7 @@
 <html dir="rtl" lang="he">
 <head>
   <meta charset="UTF-8"/>
-  <title>סדובסקי – ${productName || 'קרטון'}</title>
+  <title>סדובסקי – תכנון קרטון</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;600;700;800&display=swap" rel="stylesheet"/>
   <style>
@@ -1881,8 +1832,6 @@
   </div>
 
   <div class="product-info">
-    <h2>${productName || 'ללא שם מוצר'}</h2>
-    ${sku ? `<div class="sub">מק"ט: <strong>${sku}</strong></div>` : ''}
     <div class="sub">מידות מוצר: ${mm2cm(r.d1)} × ${mm2cm(r.d2)} × ${mm2cm(r.d3)} ס"מ</div>
   </div>
 
