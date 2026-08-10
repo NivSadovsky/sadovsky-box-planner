@@ -327,52 +327,54 @@
     return best;
   }
 
-  /* Pallet: try both standard size and +overhang variant, all carton orientations */
+  /*
+   * Pallet: for each pallet base type × 3 overhang levels, find the best carton orientation.
+   * Levels: max overhang → partial → none.
+   * Container layout always uses the physical pallet footprint (no overhang added).
+   * Results are ordered: [standard max, standard partial, standard none, euro max, euro partial, euro none]
+   */
   function calcPallet(cL, cW, cH, cont, margin) {
     const eff = v => v * (1 - margin / 100);
     const eL = eff(cont.L), eW = eff(cont.W);
     const results = [];
-    const seenKey = new Set();
 
-    // Build candidate pallets: base + overhang variant
-    const palletCandidates = [];
+    const overhangLevels = [
+      { cm: OVERHANG_CM,     label: `חריגה מרבית (+${OVERHANG_CM} ס"מ לכל צד)` },
+      { cm: Math.floor(OVERHANG_CM / 2), label: `חריגה חלקית (+${Math.floor(OVERHANG_CM/2)} ס"מ לכל צד)` },
+      { cm: 0,               label: 'ללא חריגה' },
+    ];
+
     for (const base of PALLET_BASES) {
-      palletCandidates.push({ ...base, label: base.name + ` (${base.w}×${base.d} ס"מ)`, overhang: false });
-      palletCandidates.push({
-        ...base,
-        w: base.w + OVERHANG_CM * 2, d: base.d + OVERHANG_CM * 2,
-        label: base.name + ` עם חריגה (${base.w + OVERHANG_CM*2}×${base.d + OVERHANG_CM*2} ס"מ)`,
-        overhang: true,
-      });
-    }
+      for (const level of overhangLevels) {
+        // Effective loading area (cartons can extend this far)
+        const effW = base.w + level.cm * 2;
+        const effD = base.d + level.cm * 2;
 
-    for (const pal of palletCandidates) {
-      for (const [d1, d2, d3] of getOrientations(cL, cW, cH)) {
-        const nx = Math.floor(pal.w / d1);
-        const ny = Math.floor(pal.d / d2);
-        const nz = Math.floor(MAX_PALLET_H / d3);
-        if (!nx || !ny || !nz) continue;
-        const count = nx * ny * nz;
-        const palH = nz * d3;
-        if (palH > cont.H) continue;
+        // Find best carton orientation for this pallet/overhang combo
+        let best = null;
+        for (const [d1, d2, d3] of getOrientations(cL, cW, cH)) {
+          const nx = Math.floor(effW / d1);
+          const ny = Math.floor(effD / d2);
+          const nz = Math.floor(MAX_PALLET_H / d3);
+          if (!nx || !ny || !nz) continue;
+          const count = nx * ny * nz;
+          const palH  = nz * d3;
+          if (palH > cont.H) continue;
+          if (!best || count > best.count) {
+            best = { nx, ny, nz, d1, d2, d3, count, palH };
+          }
+        }
+        if (!best) continue;
 
-        // Use actual (non-overhang) pallet footprint for container layout
-        const footW = pal.overhang ? pal.w - OVERHANG_CM*2 : pal.w;
-        const footD = pal.overhang ? pal.d - OVERHANG_CM*2 : pal.d;
-        const palletsInCont = calcPalletsInContainer(footW, footD, eL, eW);
-        const totalCartons = palletsInCont * count;
-        const fillPct = (palletsInCont * footW * footD * palH) / (cont.L * cont.W * cont.H) * 100;
+        // Pallets occupy the physical (base) footprint inside the container
+        const palletsInCont  = calcPalletsInContainer(base.w, base.d, eL, eW);
+        const totalCartons   = palletsInCont * best.count;
+        const fillPct        = (palletsInCont * base.w * base.d * best.palH) / (cont.L * cont.W * cont.H) * 100;
 
-        const key = `${pal.label}|${d1},${d2},${d3}`;
-        if (seenKey.has(key)) continue;
-        seenKey.add(key);
-
-        results.push({ pal, config: { nx, ny, nz, d1, d2, d3, count, palH },
-          palletsInCont, totalCartons, fillPct,
-          footW, footD });
+        results.push({ base, level, effW, effD, config: best, palletsInCont, totalCartons, fillPct });
       }
     }
-    return results.sort((a,b) => b.totalCartons - a.totalCartons);
+    return results; // order preserved: standard [max,partial,none] then euro [max,partial,none]
   }
 
   /* ── Main ── */
@@ -422,10 +424,11 @@
 
     $('resultsCount').textContent = results.length + ' סידורים נמצאו';
 
-    results.slice(0, 8).forEach((r, i) => {
+    const showCount = mode === 'direct' ? 8 : results.length;
+    results.slice(0, showCount).forEach((r, i) => {
       const rank = i + 1;
       const card = document.createElement('div');
-      card.className = 'card ' + (rank <= 3 ? 'rank-' + rank : '');
+      card.className = 'card ' + (mode === 'direct' && rank <= 3 ? 'rank-' + rank : '');
       card.innerHTML = mode === 'direct'
         ? buildDirectCard(r, rank, cont, cartWeight, margin)
         : buildPalletCard(r, rank, cont, cartWeight, margin);
@@ -483,11 +486,13 @@
 
   function buildPalletCard(r, rank, cont, cartWeight, margin) {
     const cfg = r.config;
-    const overhangNote = r.pal.overhang
-      ? `<div class="data-row" style="color:#d97706;"><span class="lbl">⚠️ חריגה</span><span class="val">${OVERHANG_CM} ס"מ לכל צד</span></div>` : '';
+    const overhangColor = r.level.cm > 0 ? '#d97706' : '#059669';
+    const overhangBadge = r.level.cm > 0
+      ? `<div class="data-row"><span class="lbl" style="color:${overhangColor};">⚠️ ${r.level.label}</span><span class="val" style="color:${overhangColor};">שטח טעינה: ${r.effW}×${r.effD} ס"מ</span></div>`
+      : `<div class="data-row"><span class="lbl" style="color:#059669;">✔ ${r.level.label}</span><span class="val" style="color:#059669;">שטח טעינה: ${r.effW}×${r.effD} ס"מ</span></div>`;
     return `
       <div class="rank-badge">${rankLabel(rank)}</div>
-      <div class="card-title" style="margin-top:10px;">${r.pal.label}</div>
+      <div class="card-title" style="margin-top:10px;">${r.base.name} (${r.base.w}×${r.base.d} ס"מ)</div>
       <div class="card-sub">${cfg.nx} × ${cfg.ny} × ${cfg.nz} קרטונים למשטח · ${cfg.count} יח'</div>
       <div class="total-box">
         <div class="lbl-top">סה"כ קרטונים במכולה</div>
@@ -498,10 +503,9 @@
       <div class="data-row"><span class="lbl">קרטונים למשטח</span><span class="val">${cfg.count}</span></div>
       <div class="data-row"><span class="lbl">גובה ערימה</span><span class="val">${fmt1(cfg.palH)} ס"מ</span></div>
       <div class="data-row"><span class="lbl">כיוון על משטח (ס"מ)</span><span class="val">${fmt1(cfg.d1)} × ${fmt1(cfg.d2)} × ${fmt1(cfg.d3)}</span></div>
-      ${overhangNote}
+      ${overhangBadge}
       ${fillBar(r.fillPct)}
-      ${weightWarn(r.totalCartons, cartWeight, cont)}
-      ${rank === 1 ? '<div class="best-tag" style="margin-top:12px;"><span>✔ הסידור הטוב ביותר</span></div>' : ''}`;
+      ${weightWarn(r.totalCartons, cartWeight, cont)}`;
   }
 
   /* ── PDF ── */
