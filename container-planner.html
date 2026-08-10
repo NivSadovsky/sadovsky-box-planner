@@ -150,6 +150,8 @@
 
     .best-tag { text-align: center; margin-top: 12px; }
     .best-tag span { background: var(--green); color: white; font-size: .82rem; font-weight: 700; padding: 5px 14px; border-radius: 30px; }
+    .btn-pdf { width: 100%; margin-top: 14px; padding: 9px; background: #1e3a5f; color: white; border: none; border-radius: 10px; font-family: 'Heebo', sans-serif; font-size: .88rem; font-weight: 700; cursor: pointer; transition: background .15s; }
+    .btn-pdf:hover { background: #2563eb; }
 
     /* Pallet mini top-view */
     .pallet-section { margin-top: 14px; }
@@ -244,18 +246,20 @@
     '20st': { name: '20ft Standard',  L: 590,  W: 234, H: 239, maxPayload: 21700 },
   };
 
-  const PALLET_TYPES = [
-    { name: 'משטח גדול (120×100 ס"מ)', w: 120, d: 100 },
-    { name: 'משטח יורו (120×80 ס"מ)',  w: 120, d: 80  },
+  // Standard pallets + overhang variants computed at runtime
+  const PALLET_BASES = [
+    { name: 'משטח גדול', w: 120, d: 100 },
+    { name: 'משטח יורו',  w: 120, d: 80  },
   ];
-  const MAX_PALLET_H = 220; // cm — standard max pallet height
+  const MAX_PALLET_H = 220;
+  const OVERHANG_CM  = 4;   // cm overhang per side allowed on pallet
 
   let _currentCont = '40hc';
   let _currentMode = 'direct';
 
-  /* ── UI helpers ── */
   const $ = id => document.getElementById(id);
 
+  /* ── UI ── */
   function setContType(type, btn) {
     _currentCont = type;
     $('contTypePills').querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
@@ -268,16 +272,13 @@
     btn.classList.add('active');
     $('modeInfo').textContent = mode === 'direct'
       ? 'קרטונים מוכנסים ישירות למכולה בסידור אופטימלי — ניצולת מרבית של הנפח.'
-      : 'קרטונים מסודרים על משטחי פלט ואז נכנסים למכולה — פריקה והעמסה קלות יותר.';
+      : 'קרטונים מסודרים על משטחים ואז נכנסים למכולה — פריקה והעמסה קלות יותר. מוצגות גם אפשרויות עם חריגה קלה מהמשטח.';
   }
 
   /* ── Algorithms ── */
   function getOrientations(l, w, h) {
-    const perms = [
-      [l,w,h],[l,h,w],[w,l,h],[w,h,l],[h,l,w],[h,w,l]
-    ];
-    const seen = new Set();
-    const out = [];
+    const perms = [[l,w,h],[l,h,w],[w,l,h],[w,h,l],[h,l,w],[h,w,l]];
+    const seen = new Set(), out = [];
     for (const p of perms) {
       const key = [...p].sort((a,b)=>a-b).join(',');
       if (!seen.has(key)) { seen.add(key); out.push(p); }
@@ -285,96 +286,97 @@
     return out;
   }
 
+  /* Direct: all orientations, NO second-level dedup — show each distinct physical arrangement */
   function calcDirect(cL, cW, cH, cont, margin) {
     const eff = v => v * (1 - margin / 100);
     const eL = eff(cont.L), eW = eff(cont.W), eH = eff(cont.H);
-    const orientations = getOrientations(cL, cW, cH);
     const results = [];
-    const seen = new Set();
 
-    for (const [d1, d2, d3] of orientations) {
+    for (const [d1, d2, d3] of getOrientations(cL, cW, cH)) {
       const nx = Math.floor(eL / d1);
       const ny = Math.floor(eW / d2);
       const nz = Math.floor(eH / d3);
       if (!nx || !ny || !nz) continue;
       const total = nx * ny * nz;
-      const key = [nx,ny,nz].sort((a,b)=>a-b).join('×');
-      if (seen.has(key)) continue;
-      seen.add(key);
       const usedL = nx*d1, usedW = ny*d2, usedH = nz*d3;
-      const fillPct = (usedL * usedW * usedH) / (cont.L * cont.W * cont.H) * 100;
+      const fillPct = (usedL*usedW*usedH) / (cont.L*cont.W*cont.H) * 100;
       results.push({ nx, ny, nz, d1, d2, d3, total, usedL, usedW, usedH, fillPct });
     }
     return results.sort((a,b) => b.total - a.total);
   }
 
+  /* Zone-split for pallets inside container */
   function calcPalletsInContainer(palW, palD, contL, contW) {
-    // Zone-split: try all splits along length and width
     let best = 0;
-    const fits = (l, w, pl, pd) => Math.floor(l/pl) * Math.floor(w/pd);
-    // Try split along length: Zone A uses k*palW length, Zone B uses rest
-    for (let k = 0; k <= Math.floor(contL/palW); k++) {
-      const zA_len = k * palW; const zB_len = contL - zA_len;
-      // Zone A: palW along length, palD along width (both orientations)
-      const zA = Math.floor(zA_len/palW) * Math.floor(contW/palD);
-      const zA2 = Math.floor(zA_len/palD) * Math.floor(contW/palW);
-      // Zone B: palD along length
-      const zB = Math.floor(zB_len/palD) * Math.floor(contW/palW);
-      const zB2 = Math.floor(zB_len/palW) * Math.floor(contW/palD);
+    for (let k = 0; k <= Math.floor(contL / palW); k++) {
+      const aL = k * palW, bL = contL - aL;
+      const zA  = Math.floor(aL/palW) * Math.floor(contW/palD);
+      const zA2 = Math.floor(aL/palD) * Math.floor(contW/palW);
+      const zB  = Math.floor(bL/palD) * Math.floor(contW/palW);
+      const zB2 = Math.floor(bL/palW) * Math.floor(contW/palD);
       best = Math.max(best, Math.max(zA,zA2) + Math.max(zB,zB2));
     }
-    // Also try split along width
-    for (let k = 0; k <= Math.floor(contW/palW); k++) {
-      const zA_w = k * palW; const zB_w = contW - zA_w;
-      const zA = Math.floor(contL/palW) * Math.floor(zA_w/palD);
-      const zA2 = Math.floor(contL/palD) * Math.floor(zA_w/palW);
-      const zB = Math.floor(contL/palD) * Math.floor(zB_w/palW);
-      const zB2 = Math.floor(contL/palW) * Math.floor(zB_w/palD);
+    for (let k = 0; k <= Math.floor(contW / palW); k++) {
+      const aW = k * palW, bW = contW - aW;
+      const zA  = Math.floor(contL/palW) * Math.floor(aW/palD);
+      const zA2 = Math.floor(contL/palD) * Math.floor(aW/palW);
+      const zB  = Math.floor(contL/palD) * Math.floor(bW/palW);
+      const zB2 = Math.floor(contL/palW) * Math.floor(bW/palD);
       best = Math.max(best, Math.max(zA,zA2) + Math.max(zB,zB2));
     }
     return best;
   }
 
+  /* Pallet: try both standard size and +overhang variant, all carton orientations */
   function calcPallet(cL, cW, cH, cont, margin) {
     const eff = v => v * (1 - margin / 100);
     const eL = eff(cont.L), eW = eff(cont.W);
     const results = [];
+    const seenKey = new Set();
 
-    for (const pal of PALLET_TYPES) {
-      const orientations = getOrientations(cL, cW, cH);
-      let bestConfig = null;
+    // Build candidate pallets: base + overhang variant
+    const palletCandidates = [];
+    for (const base of PALLET_BASES) {
+      palletCandidates.push({ ...base, label: base.name + ` (${base.w}×${base.d} ס"מ)`, overhang: false });
+      palletCandidates.push({
+        ...base,
+        w: base.w + OVERHANG_CM * 2, d: base.d + OVERHANG_CM * 2,
+        label: base.name + ` עם חריגה (${base.w + OVERHANG_CM*2}×${base.d + OVERHANG_CM*2} ס"מ)`,
+        overhang: true,
+      });
+    }
 
-      for (const [d1, d2, d3] of orientations) {
-        // d1 along pallet width, d2 along pallet depth, d3 vertical
+    for (const pal of palletCandidates) {
+      for (const [d1, d2, d3] of getOrientations(cL, cW, cH)) {
         const nx = Math.floor(pal.w / d1);
         const ny = Math.floor(pal.d / d2);
         const nz = Math.floor(MAX_PALLET_H / d3);
         if (!nx || !ny || !nz) continue;
         const count = nx * ny * nz;
         const palH = nz * d3;
-        if (palH > cont.H) continue; // doesn't fit in container height
-        if (!bestConfig || count > bestConfig.count) {
-          bestConfig = { nx, ny, nz, d1, d2, d3, count, palH, pal };
-        }
+        if (palH > cont.H) continue;
+
+        // Use actual (non-overhang) pallet footprint for container layout
+        const footW = pal.overhang ? pal.w - OVERHANG_CM*2 : pal.w;
+        const footD = pal.overhang ? pal.d - OVERHANG_CM*2 : pal.d;
+        const palletsInCont = calcPalletsInContainer(footW, footD, eL, eW);
+        const totalCartons = palletsInCont * count;
+        const fillPct = (palletsInCont * footW * footD * palH) / (cont.L * cont.W * cont.H) * 100;
+
+        const key = `${pal.label}|${d1},${d2},${d3}`;
+        if (seenKey.has(key)) continue;
+        seenKey.add(key);
+
+        results.push({ pal, config: { nx, ny, nz, d1, d2, d3, count, palH },
+          palletsInCont, totalCartons, fillPct,
+          footW, footD });
       }
-      if (!bestConfig) continue;
-
-      const palletsInCont = calcPalletsInContainer(pal.w, pal.d, eL, eW);
-      const totalCartons = palletsInCont * bestConfig.count;
-      const fillPct = (palletsInCont * pal.w * pal.d * bestConfig.palH)
-                      / (cont.L * cont.W * cont.H) * 100;
-
-      results.push({
-        pal, config: bestConfig,
-        palletsInCont, totalCartons, fillPct,
-      });
     }
     return results.sort((a,b) => b.totalCartons - a.totalCartons);
   }
 
   /* ── Main ── */
   function calculate() {
-    // Clear errors
     ['cartL','cartW','cartH'].forEach(id => $(id).classList.remove('error'));
     $('errorBanner').classList.remove('visible');
 
@@ -382,13 +384,12 @@
     const cW = parseFloat($('cartW').value);
     const cH = parseFloat($('cartH').value);
     const cartWeight = parseFloat($('cartWeight').value) || null;
-    const margin = parseFloat($('margin').value) || 0;
+    const margin     = parseFloat($('margin').value) || 0;
 
     const errors = [];
     if (!$('cartL').value || isNaN(cL) || cL <= 0) { errors.push('אורך קרטון'); $('cartL').classList.add('error'); }
     if (!$('cartW').value || isNaN(cW) || cW <= 0) { errors.push('רוחב קרטון'); $('cartW').classList.add('error'); }
     if (!$('cartH').value || isNaN(cH) || cH <= 0) { errors.push('גובה קרטון'); $('cartH').classList.add('error'); }
-
     if (errors.length) {
       $('errorBanner').textContent = 'יש למלא: ' + errors.join(', ');
       $('errorBanner').classList.add('visible');
@@ -397,21 +398,16 @@
     }
 
     const cont = CONTAINERS[_currentCont];
-    let results;
-    let mode = _currentMode;
+    const results = _currentMode === 'direct'
+      ? calcDirect(cL, cW, cH, cont, margin)
+      : calcPallet(cL, cW, cH, cont, margin);
 
-    if (mode === 'direct') {
-      results = calcDirect(cL, cW, cH, cont, margin);
-    } else {
-      results = calcPallet(cL, cW, cH, cont, margin);
-    }
-
-    renderResults(results, mode, cont, cartWeight, margin);
+    renderResults(results, _currentMode, cont, cartWeight, margin);
   }
 
   /* ── Render ── */
-  function fmt1(n) { return parseFloat(n.toFixed(1)); }
-  function fmtPct(n) { return n.toFixed(1) + '%'; }
+  const fmt1   = n => parseFloat(n.toFixed(1));
+  const fmtPct = n => n.toFixed(1) + '%';
 
   function renderResults(results, mode, cont, cartWeight, margin) {
     const grid = $('cardsGrid');
@@ -426,45 +422,49 @@
 
     $('resultsCount').textContent = results.length + ' סידורים נמצאו';
 
-    results.slice(0, 6).forEach((r, i) => {
+    results.slice(0, 8).forEach((r, i) => {
       const rank = i + 1;
-      const rankClass = rank <= 3 ? 'rank-' + rank : '';
       const card = document.createElement('div');
-      card.className = 'card ' + rankClass;
+      card.className = 'card ' + (rank <= 3 ? 'rank-' + rank : '');
       card.innerHTML = mode === 'direct'
         ? buildDirectCard(r, rank, cont, cartWeight, margin)
         : buildPalletCard(r, rank, cont, cartWeight, margin);
+      const pdfBtn = document.createElement('button');
+      pdfBtn.className = 'btn-pdf';
+      pdfBtn.textContent = '📄 שמור PDF';
+      pdfBtn.addEventListener('click', () => printPdf(card));
+      card.appendChild(pdfBtn);
       grid.appendChild(card);
     });
   }
 
-  function rankLabel(r) {
-    return ['מקום 1','מקום 2','מקום 3'][r-1] || 'מקום ' + r;
-  }
+  const rankLabel = r => ['מקום 1','מקום 2','מקום 3'][r-1] || 'מקום ' + r;
 
   function weightWarn(total, cartWeight, cont) {
     if (!cartWeight) return '';
     const totalKg = total * cartWeight;
     const pct = (totalKg / cont.maxPayload * 100).toFixed(0);
-    const color = totalKg > cont.maxPayload ? '#dc2626' : totalKg > cont.maxPayload * 0.9 ? '#d97706' : '#059669';
+    const over = totalKg > cont.maxPayload;
+    const warn = totalKg > cont.maxPayload * 0.9;
+    const color = over ? '#dc2626' : warn ? '#d97706' : '#059669';
     return `<div class="weight-warning" style="border-color:${color};background:${color}11;color:${color};">
       ⚖️ משקל כולל: <strong>${totalKg.toLocaleString('he-IL')} ק"ג</strong>
       (${pct}% מעומס מרבי של ${cont.maxPayload.toLocaleString('he-IL')} ק"ג)
-      ${totalKg > cont.maxPayload ? ' — <strong>חריגה ממשקל מרבי!</strong>' : ''}
+      ${over ? ' — <strong>חריגה ממשקל מרבי!</strong>' : ''}
     </div>`;
   }
 
   function fillBar(pct) {
-    const clamped = Math.min(pct, 100);
-    const color = pct > 90 ? '#059669' : pct > 70 ? '#2563eb' : '#94a3b8';
+    const c = Math.min(pct, 100);
+    const color = pct > 85 ? '#059669' : pct > 65 ? '#2563eb' : '#94a3b8';
     return `<div class="fill-bar-wrap">
       <div class="fill-bar-label"><span>ניצולת נפח</span><span style="color:${color};font-weight:700;">${fmtPct(pct)}</span></div>
-      <div class="fill-bar"><div class="fill-bar-inner" style="width:${clamped}%;background:${color};"></div></div>
+      <div class="fill-bar"><div class="fill-bar-inner" style="width:${c}%;background:${color};"></div></div>
     </div>`;
   }
 
   function buildDirectCard(r, rank, cont, cartWeight, margin) {
-    const effL = cont.L*(1-margin/100), effW = cont.W*(1-margin/100), effH = cont.H*(1-margin/100);
+    const effL = fmt1(cont.L*(1-margin/100)), effW = fmt1(cont.W*(1-margin/100)), effH = fmt1(cont.H*(1-margin/100));
     return `
       <div class="rank-badge">${rankLabel(rank)}</div>
       <div class="card-title" style="margin-top:10px;">${r.nx} × ${r.ny} × ${r.nz} קרטונים</div>
@@ -475,20 +475,20 @@
       </div>
       <div class="data-row"><span class="lbl">נפח בשימוש (ס"מ)</span><span class="val">${fmt1(r.usedL)} × ${fmt1(r.usedW)} × ${fmt1(r.usedH)}</span></div>
       <div class="data-row"><span class="lbl">שורות × עמודות × שכבות</span><span class="val">${r.nx} × ${r.ny} × ${r.nz}</span></div>
-      <div class="data-row"><span class="lbl">שטח פנימי מכולה</span><span class="val">${cont.L} × ${cont.W} × ${cont.H} ס"מ</span></div>
-      <div class="data-row"><span class="lbl">נפח אפקטיבי (עם ${margin}% מרווח)</span><span class="val">${fmt1(effL)} × ${fmt1(effW)} × ${fmt1(effH)} ס"מ</span></div>
+      <div class="data-row"><span class="lbl">נפח אפקטיבי (עם ${margin}% מרווח)</span><span class="val">${effL} × ${effW} × ${effH} ס"מ</span></div>
       ${fillBar(r.fillPct)}
       ${weightWarn(r.total, cartWeight, cont)}
-      ${rank === 1 ? '<div class="best-tag" style="margin-top:12px;"><span>✔ הסידור הטוב ביותר</span></div>' : ''}
-    `;
+      ${rank === 1 ? '<div class="best-tag" style="margin-top:12px;"><span>✔ הסידור הטוב ביותר</span></div>' : ''}`;
   }
 
   function buildPalletCard(r, rank, cont, cartWeight, margin) {
     const cfg = r.config;
+    const overhangNote = r.pal.overhang
+      ? `<div class="data-row" style="color:#d97706;"><span class="lbl">⚠️ חריגה</span><span class="val">${OVERHANG_CM} ס"מ לכל צד</span></div>` : '';
     return `
       <div class="rank-badge">${rankLabel(rank)}</div>
-      <div class="card-title" style="margin-top:10px;">${r.pal.name}</div>
-      <div class="card-sub">${cfg.nx} × ${cfg.ny} × ${cfg.nz} קרטונים למשטח</div>
+      <div class="card-title" style="margin-top:10px;">${r.pal.label}</div>
+      <div class="card-sub">${cfg.nx} × ${cfg.ny} × ${cfg.nz} קרטונים למשטח · ${cfg.count} יח'</div>
       <div class="total-box">
         <div class="lbl-top">סה"כ קרטונים במכולה</div>
         <div class="val-top">${r.totalCartons.toLocaleString('he-IL')}</div>
@@ -496,17 +496,67 @@
       <hr class="card-divider"/>
       <div class="data-row"><span class="lbl">משטחים במכולה</span><span class="val">${r.palletsInCont}</span></div>
       <div class="data-row"><span class="lbl">קרטונים למשטח</span><span class="val">${cfg.count}</span></div>
-      <div class="data-row"><span class="lbl">גובה ערימת קרטונים</span><span class="val">${fmt1(cfg.palH)} ס"מ</span></div>
-      <div class="data-row"><span class="lbl">כיוון על המשטח (ס"מ)</span><span class="val">${fmt1(cfg.d1)} × ${fmt1(cfg.d2)} × ${fmt1(cfg.d3)}</span></div>
-      <div class="data-row"><span class="lbl">שורות × עמודות × שכבות</span><span class="val">${cfg.nx} × ${cfg.ny} × ${cfg.nz}</span></div>
-      <div class="data-row"><span class="lbl">מכולה</span><span class="val">${cont.name} — ${cont.L}×${cont.W}×${cont.H} ס"מ</span></div>
+      <div class="data-row"><span class="lbl">גובה ערימה</span><span class="val">${fmt1(cfg.palH)} ס"מ</span></div>
+      <div class="data-row"><span class="lbl">כיוון על משטח (ס"מ)</span><span class="val">${fmt1(cfg.d1)} × ${fmt1(cfg.d2)} × ${fmt1(cfg.d3)}</span></div>
+      ${overhangNote}
       ${fillBar(r.fillPct)}
       ${weightWarn(r.totalCartons, cartWeight, cont)}
-      ${rank === 1 ? '<div class="best-tag" style="margin-top:12px;"><span>✔ הסידור הטוב ביותר</span></div>' : ''}
-    `;
+      ${rank === 1 ? '<div class="best-tag" style="margin-top:12px;"><span>✔ הסידור הטוב ביותר</span></div>' : ''}`;
   }
 
-  /* Enter key */
+  /* ── PDF ── */
+  function printPdf(card) {
+    const today = new Date().toLocaleDateString('he-IL', {year:'numeric',month:'long',day:'numeric'});
+    const title  = card.querySelector('.card-title')?.textContent || '';
+    const body   = card.innerHTML;
+    const html = `<!DOCTYPE html><html dir="rtl" lang="he"><head><meta charset="UTF-8"/>
+<title>סדובסקי – תכנון מכולה</title>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+* { box-sizing:border-box; margin:0; padding:0; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+body { font-family:'Heebo',sans-serif; direction:rtl; padding:20mm; color:#1e293b; }
+h1 { font-size:1.2rem; font-weight:900; color:#1e3a5f; margin-bottom:4px; }
+.dt { font-size:.8rem; color:#64748b; margin-bottom:18px; }
+.rank-badge { display:none; }
+.card-title { font-size:1.3rem; font-weight:800; color:#1e3a5f; margin-bottom:4px; text-align:center; }
+.card-sub { text-align:center; color:#64748b; font-size:.85rem; margin-bottom:14px; }
+.total-box { background:#1e3a5f; color:white; border-radius:10px; padding:14px; text-align:center; margin-bottom:14px; }
+.lbl-top { font-size:.78rem; opacity:.8; }
+.val-top { font-size:2rem; font-weight:900; }
+.data-row { display:flex; justify-content:space-between; padding:5px 0; font-size:.87rem; border-bottom:1px solid #f1f5f9; }
+.data-row .lbl { color:#64748b; }
+.data-row .val { font-weight:700; }
+.card-divider { border:none; border-top:1px solid #e2e8f0; margin:10px 0; }
+.fill-bar-wrap { margin:12px 0 4px; }
+.fill-bar-label { display:flex; justify-content:space-between; font-size:.78rem; color:#64748b; margin-bottom:4px; }
+.fill-bar { background:#e2e8f0; border-radius:6px; height:10px; overflow:hidden; }
+.fill-bar-inner { height:100%; border-radius:6px; }
+.weight-warning { border:1px solid; border-radius:8px; padding:8px 12px; font-size:.82rem; margin-top:10px; }
+.best-tag { text-align:center; margin-top:12px; }
+.best-tag span { background:#059669; color:white; font-size:.82rem; font-weight:700; padding:5px 14px; border-radius:30px; }
+footer { margin-top:24px; font-size:.72rem; color:#94a3b8; text-align:center; border-top:1px solid #e2e8f0; padding-top:10px; }
+@media print { @page { margin:15mm; size:A4 portrait; } }
+</style></head><body>
+<h1>📦 סדובסקי בע״מ – תכנון מכולה</h1>
+<div class="dt">${today}</div>
+${body}
+<footer>כל הזכויות שמורות לניב סדובסקי © | סדובסקי בע״מ</footer>
+<script>window.onload=function(){window.print();};<\/script>
+</body></html>`;
+
+    const iframe = document.createElement('iframe');
+    iframe.style.cssText = 'position:absolute;left:-9999px;top:0;width:21cm;height:29.7cm;border:0;';
+    document.body.appendChild(iframe);
+    iframe.onload = () => {
+      setTimeout(() => {
+        iframe.contentWindow.focus();
+        iframe.contentWindow.print();
+        setTimeout(() => document.body.removeChild(iframe), 2000);
+      }, 300);
+    };
+    iframe.srcdoc = html;
+  }
+
   document.addEventListener('keydown', e => { if (e.key === 'Enter') calculate(); });
 </script>
 
