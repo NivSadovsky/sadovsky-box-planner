@@ -238,10 +238,16 @@
       </div>
     </div>
 
-    <button class="flat-toggle" id="flatToggle" onclick="toggleFlatMode()">
-      <span>↔️ מוצר בשכיבה — נעל אורך ורוחב כרצפה</span>
-      <span class="badge" id="flatBadge">כבוי</span>
-    </button>
+    <div style="display:flex;gap:8px;">
+      <button class="flat-toggle" id="flatToggle" onclick="toggleFlatMode()" style="flex:1;">
+        <span>↔️ מוצר בשכיבה — נעל אורך ורוחב כרצפה</span>
+        <span class="badge" id="flatBadge">כבוי</span>
+      </button>
+      <button class="flat-toggle" id="singleLayerToggle" onclick="toggleSingleLayerMode()" style="flex:1;">
+        <span>1️⃣ שכבה אחת בלבד — קומה אחת לגובה</span>
+        <span class="badge" id="singleLayerBadge">כבוי</span>
+      </button>
+    </div>
     <button class="calc-btn" onclick="calculate()">חשב סידורים אפשריים</button>
     <div class="error-banner" id="errorBanner"></div>
   </div>
@@ -296,13 +302,22 @@
 
   /* ── Algorithms ── */
   let _flatMode = false;
+  let _singleLayerMode = false;
 
   function toggleFlatMode() {
     _flatMode = !_flatMode;
-    const btn = $('flatToggle');
-    const badge = $('flatBadge');
-    btn.classList.toggle('active', _flatMode);
-    badge.textContent = _flatMode ? 'פעיל' : 'כבוי';
+    $('flatToggle').classList.toggle('active', _flatMode);
+    $('flatBadge').textContent = _flatMode ? 'פעיל' : 'כבוי';
+  }
+
+  function toggleSingleLayerMode() {
+    _singleLayerMode = !_singleLayerMode;
+    $('singleLayerToggle').classList.toggle('active', _singleLayerMode);
+    $('singleLayerBadge').textContent = _singleLayerMode ? 'פעיל' : 'כבוי';
+  }
+
+  function maxLayers(available, dim) {
+    return _singleLayerMode ? 1 : Math.floor(available / dim);
   }
 
   function getOrientations(l, w, h) {
@@ -327,7 +342,7 @@
     for (const [d1, d2, d3] of getOrientations(cL, cW, cH)) {
       const nx = Math.floor(eL / d1);
       const ny = Math.floor(eW / d2);
-      const nz = Math.floor(eH / d3);
+      const nz = maxLayers(eH, d3);
       if (!nx || !ny || !nz) continue;
       const total = nx * ny * nz;
       const usedL = nx*d1, usedW = ny*d2, usedH = nz*d3;
@@ -387,7 +402,7 @@
         for (const [d1, d2, d3] of getOrientations(cL, cW, cH)) {
           const nx = Math.floor(effW / d1);
           const ny = Math.floor(effD / d2);
-          const nz = Math.floor(MAX_PALLET_H / d3);
+          const nz = maxLayers(MAX_PALLET_H, d3);
           if (!nx || !ny || !nz) continue;
           const count = nx * ny * nz;
           const palH  = nz * d3;

@@ -882,11 +882,18 @@
 
   <div class="error-banner" id="errorBanner"></div>
 
-  <button class="flat-toggle" id="flatToggle" onclick="toggleFlatMode()">
-    <span class="icon">↔️</span>
-    <span>מוצר בשכיבה — נעל אורך ורוחב כרצפה</span>
-    <span class="badge" id="flatBadge">כבוי</span>
-  </button>
+  <div style="display:flex;gap:8px;margin-top:14px;">
+    <button class="flat-toggle" id="flatToggle" onclick="toggleFlatMode()" style="margin-top:0;flex:1;">
+      <span class="icon">↔️</span>
+      <span>מוצר בשכיבה — נעל אורך ורוחב כרצפה</span>
+      <span class="badge" id="flatBadge">כבוי</span>
+    </button>
+    <button class="flat-toggle" id="singleLayerToggle" onclick="toggleSingleLayerMode()" style="margin-top:0;flex:1;">
+      <span class="icon">1️⃣</span>
+      <span>שכבה אחת בלבד — קומה אחת לגובה</span>
+      <span class="badge" id="singleLayerBadge">כבוי</span>
+    </button>
+  </div>
 
   <button class="btn-calc" onclick="calculate()">חשב סידורים</button>
 </div>
@@ -937,13 +944,18 @@
   }
 
   let _flatMode = false;
+  let _singleLayerMode = false;
 
   function toggleFlatMode() {
     _flatMode = !_flatMode;
-    const btn = $('flatToggle');
-    const badge = $('flatBadge');
-    btn.classList.toggle('active', _flatMode);
-    badge.textContent = _flatMode ? 'פעיל' : 'כבוי';
+    $('flatToggle').classList.toggle('active', _flatMode);
+    $('flatBadge').textContent = _flatMode ? 'פעיל' : 'כבוי';
+  }
+
+  function toggleSingleLayerMode() {
+    _singleLayerMode = !_singleLayerMode;
+    $('singleLayerToggle').classList.toggle('active', _singleLayerMode);
+    $('singleLayerBadge').textContent = _singleLayerMode ? 'פעיל' : 'כבוי';
   }
 
   function getOrientations(L, W, H) {
@@ -1171,6 +1183,7 @@
 
     for (const [d1, d2, d3] of orientations) {
       for (const [a, b, c] of triplets) {
+        if (_singleLayerMode && c !== 1) continue;
         const outerL = a * d1 + 2 * t;
         const outerW = b * d2 + 2 * t;
         const outerH = c * d3 + 4 * t;
