@@ -278,6 +278,26 @@
     .btn-calc:hover { opacity: .92; box-shadow: 0 6px 18px rgba(37,99,235,.5); }
     .btn-calc:active { transform: scale(.99); }
 
+    /* ── Flat-mode toggle ── */
+    .flat-toggle {
+      display: flex; align-items: center; gap: 10px;
+      margin-top: 14px; padding: 10px 14px;
+      border-radius: 10px; border: 2px solid var(--gray-200);
+      background: white; cursor: pointer;
+      font-family: 'Heebo', sans-serif; font-size: .9rem; font-weight: 600;
+      color: var(--gray-600); transition: all .2s; user-select: none;
+    }
+    .flat-toggle.active {
+      border-color: #d97706; background: #fffbeb; color: #92400e;
+    }
+    .flat-toggle .icon { font-size: 1.1rem; }
+    .flat-toggle .badge {
+      margin-right: auto; font-size: .72rem; font-weight: 700;
+      padding: 2px 8px; border-radius: 20px;
+      background: var(--gray-100); color: var(--gray-400);
+    }
+    .flat-toggle.active .badge { background: #fef3c7; color: #d97706; }
+
     /* ── Error banner ── */
     .error-banner {
       background: #fef2f2;
@@ -862,6 +882,12 @@
 
   <div class="error-banner" id="errorBanner"></div>
 
+  <button class="flat-toggle" id="flatToggle" onclick="toggleFlatMode()">
+    <span class="icon">↔️</span>
+    <span>מוצר בשכיבה — נעל L × W כרצפה</span>
+    <span class="badge" id="flatBadge">כבוי</span>
+  </button>
+
   <button class="btn-calc" onclick="calculate()">חשב סידורים</button>
 </div>
 
@@ -910,7 +936,21 @@
     return triplets;
   }
 
+  let _flatMode = false;
+
+  function toggleFlatMode() {
+    _flatMode = !_flatMode;
+    const btn = $('flatToggle');
+    const badge = $('flatBadge');
+    btn.classList.toggle('active', _flatMode);
+    badge.textContent = _flatMode ? 'פעיל' : 'כבוי';
+  }
+
   function getOrientations(L, W, H) {
+    if (_flatMode) {
+      // Only horizontal rotations — H stays vertical, L/W swap only
+      return [[L, W, H], [W, L, H]];
+    }
     return [
       [L, W, H], [L, H, W],
       [W, L, H], [W, H, L],

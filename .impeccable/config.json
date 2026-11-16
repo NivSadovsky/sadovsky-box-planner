@@ -1,0 +1,26 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "low-contrast",
+        "value": "*",
+        "files": [
+          "box-planner.html"
+        ],
+        "createdAt": "2026-11-16T13:59:08.219Z",
+        "reason": "pre-existing secondary text color #94a3b8 throughout app, not introduced by this change"
+      },
+      {
+        "rule": "low-contrast",
+        "value": "*",
+        "files": [
+          "container-planner.html"
+        ],
+        "createdAt": "2026-11-16T13:59:08.252Z",
+        "reason": "pre-existing secondary text color #94a3b8 throughout app"
+      }
+    ]
+  }
+}

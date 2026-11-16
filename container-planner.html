@@ -86,6 +86,21 @@
       cursor: pointer; transition: opacity .2s;
     }
     .calc-btn:hover { opacity: .9; }
+    .flat-toggle {
+      display: flex; align-items: center; gap: 10px; width: 100%;
+      margin-bottom: 10px; padding: 10px 14px;
+      border-radius: 10px; border: 2px solid var(--gray-200);
+      background: white; cursor: pointer;
+      font-family: 'Heebo', sans-serif; font-size: .9rem; font-weight: 600;
+      color: var(--gray-600); transition: all .2s; user-select: none;
+    }
+    .flat-toggle.active { border-color: #d97706; background: #fffbeb; color: #92400e; }
+    .flat-toggle .badge {
+      margin-right: auto; font-size: .72rem; font-weight: 700;
+      padding: 2px 8px; border-radius: 20px;
+      background: var(--gray-100); color: var(--gray-400);
+    }
+    .flat-toggle.active .badge { background: #fef3c7; color: #d97706; }
 
     .error-banner {
       background: var(--red-light); color: var(--red); border: 1px solid #fca5a5;
@@ -223,6 +238,10 @@
       </div>
     </div>
 
+    <button class="flat-toggle" id="flatToggle" onclick="toggleFlatMode()">
+      <span>↔️ מוצר בשכיבה — נעל L × W כרצפה</span>
+      <span class="badge" id="flatBadge">כבוי</span>
+    </button>
     <button class="calc-btn" onclick="calculate()">חשב סידורים אפשריים</button>
     <div class="error-banner" id="errorBanner"></div>
   </div>
@@ -276,11 +295,24 @@
   }
 
   /* ── Algorithms ── */
+  let _flatMode = false;
+
+  function toggleFlatMode() {
+    _flatMode = !_flatMode;
+    const btn = $('flatToggle');
+    const badge = $('flatBadge');
+    btn.classList.toggle('active', _flatMode);
+    badge.textContent = _flatMode ? 'פעיל' : 'כבוי';
+  }
+
   function getOrientations(l, w, h) {
+    if (_flatMode) {
+      return [[l, w, h], [w, l, h]]; // only horizontal rotation, H stays vertical
+    }
     const perms = [[l,w,h],[l,h,w],[w,l,h],[w,h,l],[h,l,w],[h,w,l]];
     const seen = new Set(), out = [];
     for (const p of perms) {
-      const key = p.join(','); // no sort — dedup only truly identical tuples (equal dims)
+      const key = p.join(',');
       if (!seen.has(key)) { seen.add(key); out.push(p); }
     }
     return out;
